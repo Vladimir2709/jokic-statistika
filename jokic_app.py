@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import sqlite3
+from datetime import datetime
 
 
 # ─── Baza podataka ───────────────────────────────────────────────────────────
@@ -72,6 +73,26 @@ def rezultat_tekst(u):
     if i is None:
         return "-"
     return f"{i} {u[7]}:{u[8]}"
+
+# ─── Datum ────────────────────────────────────────────────────────────────────
+# Korisnik unosi i vidi datum u evropskom obliku (24.10.2026), a u bazi se čuva
+# kao 2026-10-24, jer se tako datumi ispravno ređaju po redosledu.
+
+def datum_za_bazu(tekst):
+    """'24.10.2026' -> '2026-10-24'. Baca ValueError ako datum nije ispravan."""
+    tekst = tekst.strip().rstrip(".")  # dozvoljava i '24.10.2026.'
+    try:
+        d = datetime.strptime(tekst, "%d.%m.%Y")
+    except ValueError:
+        raise ValueError("Datum unesi u obliku dan.mesec.godina, npr. 24.10.2026.")
+    return d.strftime("%Y-%m-%d")
+
+def datum_za_prikaz(iz_baze):
+    """'2026-10-24' -> '24.10.2026'. Ako nije u očekivanom obliku, vraća ga kakav jeste."""
+    try:
+        return datetime.strptime(iz_baze, "%Y-%m-%d").strftime("%d.%m.%Y")
+    except (ValueError, TypeError):
+        return iz_baze
 
 def izracunaj_statistiku():
     utakmice = ucitaj_utakmice()
@@ -160,7 +181,7 @@ class JokicApp(tk.Tk):
                               labelanchor="n", padx=12, pady=8)
         frame.pack(fill="x", pady=(0, 8))
 
-        polja = [("Datum (npr. 2024-11-01):", "datum"),
+        polja = [("Datum (npr. 24.10.2026):", "datum"),
                  ("Protivnik:", "protivnik"),
                  ("Rezultat — Denver:", "rezultat_denver"),
                  ("Rezultat — protivnik:", "rezultat_protivnik"),
@@ -262,7 +283,7 @@ class JokicApp(tk.Tk):
 
     def dodaj(self):
         try:
-            datum = self.entries["datum"].get().strip()
+            datum = datum_za_bazu(self.entries["datum"].get())
             protivnik = self.entries["protivnik"].get().strip()
             poeni = int(self.entries["poeni"].get())
             ast = int(self.entries["asistencije"].get())
@@ -306,7 +327,7 @@ class JokicApp(tk.Tk):
             # Kolone u tabeli: #, Datum, Protivnik, Rezultat, PTS, AST, REB, MIN
             # ID iz baze se ne prikazuje, već se čuva kao iid reda (koristi se za brisanje)
             self.tree.insert("", "end", iid=str(u[0]),
-                             values=(redni_broj, u[1], u[2], rezultat_tekst(u),
+                             values=(redni_broj, datum_za_prikaz(u[1]), u[2], rezultat_tekst(u),
                                      u[3], u[4], u[5], u[6]))
         # Spusti listu na dno, da poslednja uneta utakmica bude vidljiva
         self.tree.yview_moveto(1)
