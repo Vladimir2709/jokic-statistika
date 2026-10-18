@@ -47,7 +47,7 @@ def ucitaj_utakmice():
     # Kolone navodimo po imenu, da redosled ne zavisi od toga kada su dodate
     c.execute("""SELECT id, datum, protivnik, poeni, asistencije, skokovi, minuti,
                         rezultat_denver, rezultat_protivnik
-                 FROM utakmice ORDER BY id DESC""")
+                 FROM utakmice ORDER BY datum, id""")
     podaci = c.fetchall()
     conn.close()
     return podaci
@@ -201,7 +201,7 @@ class JokicApp(tk.Tk):
                               labelanchor="n", padx=6, pady=6)
         frame.pack(fill="both", expand=True)
 
-        cols = ("ID", "Datum", "Protivnik", "Rezultat", "PTS", "AST", "REB", "MIN")
+        cols = ("#", "Datum", "Protivnik", "Rezultat", "PTS", "AST", "REB", "MIN")
         style = ttk.Style()
         style.theme_use("clam")
         style.configure("Treeview", background=self.accent, foreground=self.text,
@@ -290,7 +290,8 @@ class JokicApp(tk.Tk):
         if not sel:
             messagebox.showwarning("Upozorenje", "Izaberite utakmicu za brisanje.")
             return
-        utakmica_id = self.tree.item(sel[0])["values"][0]
+        # ID utakmice iz baze je sačuvan kao skriveni identifikator reda (iid)
+        utakmica_id = int(sel[0])
         if messagebox.askyesno("Potvrda", "Da li ste sigurni da želite da obrišete ovu utakmicu?"):
             obrisi_utakmicu(utakmica_id)
             self.osvezi_sve()
@@ -300,10 +301,15 @@ class JokicApp(tk.Tk):
         for row in self.tree.get_children():
             self.tree.delete(row)
         utakmice = ucitaj_utakmice()
-        for u in utakmice:
-            # Redosled kolona u tabeli: ID, Datum, Protivnik, Rezultat, PTS, AST, REB, MIN
-            self.tree.insert("", "end", values=(u[0], u[1], u[2], rezultat_tekst(u),
-                                                u[3], u[4], u[5], u[6]))
+        # Utakmice stižu od najstarije ka najnovijoj: najstarija je #1 na vrhu
+        for redni_broj, u in enumerate(utakmice, start=1):
+            # Kolone u tabeli: #, Datum, Protivnik, Rezultat, PTS, AST, REB, MIN
+            # ID iz baze se ne prikazuje, već se čuva kao iid reda (koristi se za brisanje)
+            self.tree.insert("", "end", iid=str(u[0]),
+                             values=(redni_broj, u[1], u[2], rezultat_tekst(u),
+                                     u[3], u[4], u[5], u[6]))
+        # Spusti listu na dno, da poslednja uneta utakmica bude vidljiva
+        self.tree.yview_moveto(1)
 
         # Statistika
         s = izracunaj_statistiku()
