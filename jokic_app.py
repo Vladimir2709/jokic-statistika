@@ -265,14 +265,18 @@ class JokicApp(tk.Tk):
     
     def _enter(self, kljuc):
         """Enter proverava polje: ako je ispravno, prelazi na sledeće,
-        ako nije, ostaje u njemu i prikazuje grešku."""
+        ako nije, ostaje u njemu i prikazuje grešku.
+        Na poslednjem polju (Minuti) Enter dodaje utakmicu, isto kao dugme."""
         try:
             proveri_polje(kljuc, self.entries[kljuc].get())
         except ValueError as e:
             self._oznaci_gresku(kljuc, str(e))
             return
         self._ocisti_gresku(kljuc)
-        self._sledece_polje(kljuc)
+        if kljuc == list(self.entries)[-1]:
+            self.dodaj()
+        else:
+            self._sledece_polje(kljuc)
 
     def _oznaci_gresku(self, kljuc, poruka):
         self.entries[kljuc].config(bg=self.entry_greska, highlightbackground=self.crvena,
