@@ -94,6 +94,49 @@ def datum_za_prikaz(iz_baze):
     except (ValueError, TypeError):
         return iz_baze
 
+# ─── Provera unosa ───────────────────────────────────────────────────────────
+
+# Dozvoljeni opseg za brojčana polja (od, do)
+OPSEZI = {
+    "rezultat_denver": (1, 250),
+    "rezultat_protivnik": (1, 250),
+    "poeni": (0, 100),
+    "asistencije": (0, 50),
+    "skokovi": (0, 50),
+    "minuti": (0, 70),
+}
+
+def proveri_polje(kljuc, tekst):
+    """Proverava jedno polje. Vraća vrednost spremnu za bazu ili baca ValueError
+    sa kratkom porukom koja se prikazuje pored polja."""
+    tekst = tekst.strip()
+    if not tekst:
+        raise ValueError("Obavezno polje")
+    if kljuc == "datum":
+        try:
+            return datum_za_bazu(tekst)
+        except ValueError:
+            raise ValueError("Unesi kao 24.10.2026")
+    if kljuc == "protivnik":
+        return tekst
+    try:
+        broj = int(tekst)
+    except ValueError:
+        raise ValueError("Unesi ceo broj")
+    od, do = OPSEZI[kljuc]
+    if not od <= broj <= do:
+        raise ValueError(f"Mora biti od {od} do {do}")
+    return broj
+
+def proveri_utakmicu(v):
+    """Provere koje zavise od više polja. Vraća rečnik {polje: poruka}."""
+    greske = {}
+    if v["rezultat_denver"] == v["rezultat_protivnik"]:
+        greske["rezultat_protivnik"] = "Nema nerešenih u NBA"
+    if v["poeni"] > v["rezultat_denver"]:
+        greske["poeni"] = "Više od poena Denvera"
+    return greske
+
 def izracunaj_statistiku():
     utakmice = ucitaj_utakmice()
     if not utakmice:
@@ -144,6 +187,8 @@ class JokicApp(tk.Tk):
         self.text = "#eaeaea"
         self.muted = "#8888aa"
         self.entry_bg = "#0f3460"
+        self.entry_greska = "#4a1c2c"
+        self.crvena = "#ff6b6b"
 
         self._build_ui()
         self.osvezi_sve()
@@ -191,22 +236,52 @@ class JokicApp(tk.Tk):
                  ("Minuti:", "minuti")]
 
         self.entries = {}
+        self.greske = {}
         for label, key in polja:
             row = tk.Frame(frame, bg=self.panel)
             row.pack(fill="x", pady=2)
             tk.Label(row, text=label, width=24, anchor="w",
                      font=("Helvetica", 10), bg=self.panel, fg=self.text).pack(side="left")
             e = tk.Entry(row, bg=self.entry_bg, fg=self.text, insertbackground=self.text,
-                         font=("Helvetica", 10), relief="flat", bd=4, width=14)
+                         font=("Helvetica", 10), relief="flat", bd=4, width=14,
+                         highlightthickness=1, highlightbackground=self.entry_bg,
+                         highlightcolor=self.entry_bg)
             e.pack(side="left", padx=4)
+            greska = tk.Label(row, text="", font=("Helvetica", 9), anchor="w",
+                              bg=self.panel, fg=self.crvena)
+            greska.pack(side="left", padx=(4, 0))
             self.entries[key] = e
-            e.bind("<Return>", lambda event, k=key: self._sledece_polje(k))
+            self.greske[key] = greska
+            e.bind("<Return>", lambda event, k=key: self._enter(k))
+            # Čim korisnik počne da ispravlja, greška nestaje
+            e.bind("<Key>", lambda event, k=key: self._ocisti_gresku(k))
 
         tk.Button(frame, text="➕  Dodaj utakmicu", font=("Helvetica", 11, "bold"),
                   bg=self.gold, fg="#1a1a2e", activebackground="#c9a200",
                   relief="flat", cursor="hand2", pady=5,
                   command=self.dodaj).pack(fill="x", pady=(10, 0))
     
+    def _enter(self, kljuc):
+        """Enter proverava polje: ako je ispravno, prelazi na sledeće,
+        ako nije, ostaje u njemu i prikazuje grešku."""
+        try:
+            proveri_polje(kljuc, self.entries[kljuc].get())
+        except ValueError as e:
+            self._oznaci_gresku(kljuc, str(e))
+            return
+        self._ocisti_gresku(kljuc)
+        self._sledece_polje(kljuc)
+
+    def _oznaci_gresku(self, kljuc, poruka):
+        self.entries[kljuc].config(bg=self.entry_greska, highlightbackground=self.crvena,
+                                   highlightcolor=self.crvena)
+        self.greske[kljuc].config(text=poruka)
+
+    def _ocisti_gresku(self, kljuc):
+        self.entries[kljuc].config(bg=self.entry_bg, highlightbackground=self.entry_bg,
+                                   highlightcolor=self.entry_bg)
+        self.greske[kljuc].config(text="")
+
     def _sledece_polje(self, trenutni_kljuc):
         kljucevi = list(self.entries.keys())
         index = kljucevi.index(trenutni_kljuc)
@@ -282,28 +357,32 @@ class JokicApp(tk.Tk):
     # ── Akcije ────────────────────────────────────────────────────────────────
 
     def dodaj(self):
-        try:
-            datum = datum_za_bazu(self.entries["datum"].get())
-            protivnik = self.entries["protivnik"].get().strip()
-            poeni = int(self.entries["poeni"].get())
-            ast = int(self.entries["asistencije"].get())
-            reb = int(self.entries["skokovi"].get())
-            min_ = int(self.entries["minuti"].get())
-            rez_den = int(self.entries["rezultat_denver"].get())
-            rez_prot = int(self.entries["rezultat_protivnik"].get())
-            if not datum or not protivnik:
-                raise ValueError("Datum i protivnik su obavezni.")
-            if rez_den == rez_prot:
-                raise ValueError("U NBA nema nerešenih utakmica — proveri rezultat.")
-            if poeni > rez_den:
-                raise ValueError("Jokić ne može imati više poena od celog Denvera.")
-        except ValueError as e:
-            messagebox.showerror("Greška", f"Neispravan unos: {e}")
+        # Prvo svako polje posebno, pa provere koje zavise od više polja
+        v, greske = {}, {}
+        for kljuc, e in self.entries.items():
+            try:
+                v[kljuc] = proveri_polje(kljuc, e.get())
+            except ValueError as g:
+                greske[kljuc] = str(g)
+        if not greske:
+            greske = proveri_utakmicu(v)
+
+        for kljuc in self.entries:
+            if kljuc in greske:
+                self._oznaci_gresku(kljuc, greske[kljuc])
+            else:
+                self._ocisti_gresku(kljuc)
+        if greske:
+            # Kursor ide na prvo pogrešno polje (redom kako su u formi)
+            prvo = next(k for k in self.entries if k in greske)
+            self.entries[prvo].focus()
             return
 
-        dodaj_utakmicu(datum, protivnik, poeni, ast, reb, min_, rez_den, rez_prot)
+        dodaj_utakmicu(v["datum"], v["protivnik"], v["poeni"], v["asistencije"],
+                       v["skokovi"], v["minuti"], v["rezultat_denver"], v["rezultat_protivnik"])
         for e in self.entries.values():
             e.delete(0, "end")
+        self.entries["datum"].focus()
         self.osvezi_sve()
 
     def obrisi(self):
