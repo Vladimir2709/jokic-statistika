@@ -16,24 +16,38 @@ def init_db():
             poeni INTEGER,
             asistencije INTEGER,
             skokovi INTEGER,
-            minuti INTEGER
+            minuti INTEGER,
+            rezultat_denver INTEGER,
+            rezultat_protivnik INTEGER
         )
     """)
+    # Starije baze nemaju kolone za rezultat — dodajemo ih ako fale
+    postojece = [red[1] for red in c.execute("PRAGMA table_info(utakmice)")]
+    for kolona in ("rezultat_denver", "rezultat_protivnik"):
+        if kolona not in postojece:
+            c.execute(f"ALTER TABLE utakmice ADD COLUMN {kolona} INTEGER")
     conn.commit()
     conn.close()
 
-def dodaj_utakmicu(datum, protivnik, poeni, asistencije, skokovi, minuti):
+def dodaj_utakmicu(datum, protivnik, poeni, asistencije, skokovi, minuti,
+                   rezultat_denver=None, rezultat_protivnik=None):
     conn = sqlite3.connect("jokic_statistika.db")
     c = conn.cursor()
-    c.execute("INSERT INTO utakmice (datum, protivnik, poeni, asistencije, skokovi, minuti) VALUES (?,?,?,?,?,?)",
-              (datum, protivnik, poeni, asistencije, skokovi, minuti))
+    c.execute("""INSERT INTO utakmice (datum, protivnik, poeni, asistencije, skokovi, minuti,
+                                       rezultat_denver, rezultat_protivnik)
+                 VALUES (?,?,?,?,?,?,?,?)""",
+              (datum, protivnik, poeni, asistencije, skokovi, minuti,
+               rezultat_denver, rezultat_protivnik))
     conn.commit()
     conn.close()
 
 def ucitaj_utakmice():
     conn = sqlite3.connect("jokic_statistika.db")
     c = conn.cursor()
-    c.execute("SELECT * FROM utakmice ORDER BY id DESC")
+    # Kolone navodimo po imenu, da redosled ne zavisi od toga kada su dodate
+    c.execute("""SELECT id, datum, protivnik, poeni, asistencije, skokovi, minuti,
+                        rezultat_denver, rezultat_protivnik
+                 FROM utakmice ORDER BY id DESC""")
     podaci = c.fetchall()
     conn.close()
     return podaci
@@ -44,6 +58,20 @@ def obrisi_utakmicu(utakmica_id):
     c.execute("DELETE FROM utakmice WHERE id=?", (utakmica_id,))
     conn.commit()
     conn.close()
+
+def ishod(u):
+    """Vraća 'W' za pobedu Denvera, 'L' za poraz, None ako rezultat nije unet."""
+    denver, protivnik = u[7], u[8]
+    if denver is None or protivnik is None:
+        return None
+    return "W" if denver > protivnik else "L"
+
+def rezultat_tekst(u):
+    """Tekst za tabelu, npr. 'W 112:105'."""
+    i = ishod(u)
+    if i is None:
+        return "-"
+    return f"{i} {u[7]}:{u[8]}"
 
 def izracunaj_statistiku():
     utakmice = ucitaj_utakmice()
@@ -61,7 +89,11 @@ def izracunaj_statistiku():
             tripl_dabl += 1
         elif kat == 2:
             dabl_dabl += 1
+    pobede = sum(1 for u in utakmice if ishod(u) == "W")
+    porazi = sum(1 for u in utakmice if ishod(u) == "L")
     return {
+        "pobede": pobede,
+        "porazi": porazi,
         "utakmice": n,
         "ukupno_poena": ukupno_poena,
         "ukupno_ast": ukupno_ast,
@@ -130,6 +162,8 @@ class JokicApp(tk.Tk):
 
         polja = [("Datum (npr. 2024-11-01):", "datum"),
                  ("Protivnik:", "protivnik"),
+                 ("Rezultat — Denver:", "rezultat_denver"),
+                 ("Rezultat — protivnik:", "rezultat_protivnik"),
                  ("Poeni:", "poeni"),
                  ("Asistencije:", "asistencije"),
                  ("Skokovi:", "skokovi"),
@@ -167,7 +201,7 @@ class JokicApp(tk.Tk):
                               labelanchor="n", padx=6, pady=6)
         frame.pack(fill="both", expand=True)
 
-        cols = ("ID", "Datum", "Protivnik", "PTS", "AST", "REB", "MIN")
+        cols = ("ID", "Datum", "Protivnik", "Rezultat", "PTS", "AST", "REB", "MIN")
         style = ttk.Style()
         style.theme_use("clam")
         style.configure("Treeview", background=self.accent, foreground=self.text,
@@ -178,7 +212,7 @@ class JokicApp(tk.Tk):
                   foreground=[("selected", "#1a1a2e")])
 
         self.tree = ttk.Treeview(frame, columns=cols, show="headings", height=10)
-        widths = [30, 90, 110, 40, 40, 40, 40]
+        widths = [30, 90, 110, 80, 40, 40, 40, 40]
         for col, w in zip(cols, widths):
             self.tree.heading(col, text=col)
             self.tree.column(col, width=w, anchor="center")
@@ -205,6 +239,7 @@ class JokicApp(tk.Tk):
 
         kartice = [
             ("Utakmice", s["utakmice"], "🏟"),
+            ("Pobede-porazi", f"{s['pobede']}-{s['porazi']}", "🏆"),
             ("Prosek PTS", f"{s['prosek_poena']:.1f}", "🏀"),
             ("Prosek AST", f"{s['prosek_ast']:.1f}", "🎯"),
             ("Prosek REB", f"{s['prosek_sko']:.1f}", "💪"),
@@ -233,13 +268,19 @@ class JokicApp(tk.Tk):
             ast = int(self.entries["asistencije"].get())
             reb = int(self.entries["skokovi"].get())
             min_ = int(self.entries["minuti"].get())
+            rez_den = int(self.entries["rezultat_denver"].get())
+            rez_prot = int(self.entries["rezultat_protivnik"].get())
             if not datum or not protivnik:
                 raise ValueError("Datum i protivnik su obavezni.")
+            if rez_den == rez_prot:
+                raise ValueError("U NBA nema nerešenih utakmica — proveri rezultat.")
+            if poeni > rez_den:
+                raise ValueError("Jokić ne može imati više poena od celog Denvera.")
         except ValueError as e:
             messagebox.showerror("Greška", f"Neispravan unos: {e}")
             return
 
-        dodaj_utakmicu(datum, protivnik, poeni, ast, reb, min_)
+        dodaj_utakmicu(datum, protivnik, poeni, ast, reb, min_, rez_den, rez_prot)
         for e in self.entries.values():
             e.delete(0, "end")
         self.osvezi_sve()
@@ -260,7 +301,9 @@ class JokicApp(tk.Tk):
             self.tree.delete(row)
         utakmice = ucitaj_utakmice()
         for u in utakmice:
-            self.tree.insert("", "end", values=u)
+            # Redosled kolona u tabeli: ID, Datum, Protivnik, Rezultat, PTS, AST, REB, MIN
+            self.tree.insert("", "end", values=(u[0], u[1], u[2], rezultat_tekst(u),
+                                                u[3], u[4], u[5], u[6]))
 
         # Statistika
         s = izracunaj_statistiku()
@@ -268,7 +311,8 @@ class JokicApp(tk.Tk):
             self._osvezi_kartice(s)
            
         else:
-            self._osvezi_kartice({"utakmice": 0, "prosek_poena": 0, "prosek_ast": 0,
+            self._osvezi_kartice({"utakmice": 0, "pobede": 0, "porazi": 0,
+                                   "prosek_poena": 0, "prosek_ast": 0,
                                    "prosek_sko": 0, "dabl_dabl": 0, "tripl_dabl": 0})
             
 
