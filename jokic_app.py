@@ -145,6 +145,7 @@ def izracunaj_statistiku():
     ukupno_poena = sum(u[3] for u in utakmice)
     ukupno_ast = sum(u[4] for u in utakmice)
     ukupno_sko = sum(u[5] for u in utakmice)
+    ukupno_min = sum(u[6] for u in utakmice)
     dabl_dabl = 0
     tripl_dabl = 0
     for u in utakmice:
@@ -165,6 +166,7 @@ def izracunaj_statistiku():
         "prosek_poena": ukupno_poena / n,
         "prosek_ast": ukupno_ast / n,
         "prosek_sko": ukupno_sko / n,
+        "prosek_min": ukupno_min / n,
         "dabl_dabl": dabl_dabl,
         "tripl_dabl": tripl_dabl,
     }
@@ -339,6 +341,7 @@ class JokicApp(tk.Tk):
             ("Prosek PTS", f"{s['prosek_poena']:.1f}", "🏀"),
             ("Prosek AST", f"{s['prosek_ast']:.1f}", "🎯"),
             ("Prosek REB", f"{s['prosek_sko']:.1f}", "💪"),
+            ("Prosek MIN", f"{s['prosek_min']:.1f}", "⏱"),
             ("Dabl-dabl", s["dabl_dabl"], "✌️"),
             ("Tripl-dabl", s["tripl_dabl"], "🔥"),
         ]
@@ -419,7 +422,7 @@ class JokicApp(tk.Tk):
         else:
             self._osvezi_kartice({"utakmice": 0, "pobede": 0, "porazi": 0,
                                    "prosek_poena": 0, "prosek_ast": 0,
-                                   "prosek_sko": 0, "dabl_dabl": 0, "tripl_dabl": 0})
+                                   "prosek_sko": 0, "prosek_min": 0, "dabl_dabl": 0, "tripl_dabl": 0})
             
 
 
