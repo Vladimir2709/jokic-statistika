@@ -96,6 +96,18 @@ def datum_za_prikaz(iz_baze):
 
 # ─── Provera unosa ───────────────────────────────────────────────────────────
 
+# Svi protivnici Denvera — pun zvanični naziv, abecednim redom
+TIMOVI = [
+    "Atlanta Hawks", "Boston Celtics", "Brooklyn Nets", "Charlotte Hornets",
+    "Chicago Bulls", "Cleveland Cavaliers", "Dallas Mavericks", "Detroit Pistons",
+    "Golden State Warriors", "Houston Rockets", "Indiana Pacers",
+    "Los Angeles Clippers", "Los Angeles Lakers", "Memphis Grizzlies", "Miami Heat",
+    "Milwaukee Bucks", "Minnesota Timberwolves", "New Orleans Pelicans",
+    "New York Knicks", "Oklahoma City Thunder", "Orlando Magic", "Philadelphia 76ers",
+    "Phoenix Suns", "Portland Trail Blazers", "Sacramento Kings", "San Antonio Spurs",
+    "Toronto Raptors", "Utah Jazz", "Washington Wizards",
+]
+
 # Dozvoljeni opseg za brojčana polja (od, do)
 OPSEZI = {
     "rezultat_denver": (1, 250),
@@ -118,6 +130,8 @@ def proveri_polje(kljuc, tekst):
         except ValueError:
             raise ValueError("Unesi kao 24.10.2026")
     if kljuc == "protivnik":
+        if tekst not in TIMOVI:
+            raise ValueError("Izaberi tim sa liste")
         return tekst
     try:
         broj = int(tekst)
@@ -196,6 +210,10 @@ class JokicApp(tk.Tk):
         self.osvezi_sve()
 
     def _build_ui(self):
+        # Tema za ttk elemente (tabela, padajuća lista) — mora pre pravljenja elemenata
+        self.style = ttk.Style()
+        self.style.theme_use("clam")
+
         # Zaglavlje
         header = tk.Frame(self, bg=self.gold, pady=10)
         header.pack(fill="x")
@@ -237,6 +255,22 @@ class JokicApp(tk.Tk):
                  ("Skokovi:", "skokovi"),
                  ("Minuti:", "minuti")]
 
+        # Izgled padajuće liste u bojama aplikacije (obična i sa greškom)
+        for ime, pozadina in (("TCombobox", self.entry_bg), ("Greska.TCombobox", self.entry_greska)):
+            self.style.configure(ime, arrowcolor=self.gold, background=self.panel,
+                                 bordercolor=self.entry_bg, lightcolor=pozadina,
+                                 darkcolor=pozadina, padding=3)
+            self.style.map(ime, fieldbackground=[("readonly", pozadina)],
+                           foreground=[("readonly", self.text)],
+                           selectbackground=[("readonly", pozadina)],
+                           selectforeground=[("readonly", self.text)])
+        self.style.configure("Greska.TCombobox", bordercolor=self.crvena)
+        self.option_add("*TCombobox*Listbox.background", self.entry_bg)
+        self.option_add("*TCombobox*Listbox.foreground", self.text)
+        self.option_add("*TCombobox*Listbox.selectBackground", self.gold)
+        self.option_add("*TCombobox*Listbox.selectForeground", "#1a1a2e")
+        self.option_add("*TCombobox*Listbox.font", ("Helvetica", 10))
+
         self.entries = {}
         self.greske = {}
         for label, key in polja:
@@ -244,10 +278,15 @@ class JokicApp(tk.Tk):
             row.pack(fill="x", pady=2)
             tk.Label(row, text=label, width=24, anchor="w",
                      font=("Helvetica", 10), bg=self.panel, fg=self.text).pack(side="left")
-            e = tk.Entry(row, bg=self.entry_bg, fg=self.text, insertbackground=self.text,
-                         font=("Helvetica", 10), relief="flat", bd=4, width=14,
-                         highlightthickness=1, highlightbackground=self.entry_bg,
-                         highlightcolor=self.entry_bg)
+            if key == "protivnik":
+                # Padajuća lista: širina prema najdužem nazivu (22 znaka)
+                e = ttk.Combobox(row, values=TIMOVI, state="readonly", width=24,
+                                 font=("Helvetica", 10))
+            else:
+                e = tk.Entry(row, bg=self.entry_bg, fg=self.text, insertbackground=self.text,
+                             font=("Helvetica", 10), relief="flat", bd=4, width=14,
+                             highlightthickness=1, highlightbackground=self.entry_bg,
+                             highlightcolor=self.entry_bg)
             e.pack(side="left", padx=4)
             greska = tk.Label(row, text="", font=("Helvetica", 9), anchor="w",
                               bg=self.panel, fg=self.crvena)
@@ -255,8 +294,13 @@ class JokicApp(tk.Tk):
             self.entries[key] = e
             self.greske[key] = greska
             e.bind("<Return>", lambda event, k=key: self._enter(k))
-            # Čim korisnik počne da ispravlja, greška nestaje
-            e.bind("<Key>", lambda event, k=key: self._ocisti_gresku(k))
+            if key == "protivnik":
+                # Kucanjem slova lista skače na tim; izbor mišem prelazi na sledeće polje
+                e.bind("<Key>", self._skok_na_tim)
+                e.bind("<<ComboboxSelected>>", lambda event: self._izabran_tim())
+            else:
+                # Čim korisnik počne da ispravlja, greška nestaje
+                e.bind("<Key>", lambda event, k=key: self._ocisti_gresku(k))
 
         tk.Button(frame, text="➕  Dodaj utakmicu", font=("Helvetica", 11, "bold"),
                   bg=self.gold, fg="#1a1a2e", activebackground="#c9a200",
@@ -278,14 +322,45 @@ class JokicApp(tk.Tk):
         else:
             self._sledece_polje(kljuc)
 
+    def _skok_na_tim(self, event):
+        """Slovo na tastaturi bira prvi tim na to slovo; ponovljeno slovo ide na
+        sledeći tim (npr. L → Los Angeles Clippers → Los Angeles Lakers).
+        Backspace i Delete brišu izabrani tim."""
+        self._ocisti_gresku("protivnik")
+        cb = self.entries["protivnik"]
+        if event.keysym in ("BackSpace", "Delete"):
+            cb.set("")  # briše izabrani tim
+            return "break"
+        slovo = event.char.lower()
+        if not slovo or not slovo.isalnum():
+            return  # strelice, Tab i Enter rade kao i inače
+        kandidati = [t for t in TIMOVI if t.lower().startswith(slovo)]
+        if kandidati:
+            trenutni = cb.get()
+            i = (kandidati.index(trenutni) + 1) % len(kandidati) if trenutni in kandidati else 0
+            cb.set(kandidati[i])
+        return "break"
+
+    def _izabran_tim(self):
+        self._ocisti_gresku("protivnik")
+        self._sledece_polje("protivnik")
+
     def _oznaci_gresku(self, kljuc, poruka):
-        self.entries[kljuc].config(bg=self.entry_greska, highlightbackground=self.crvena,
-                                   highlightcolor=self.crvena)
+        e = self.entries[kljuc]
+        if isinstance(e, ttk.Combobox):
+            e.configure(style="Greska.TCombobox")
+        else:
+            e.config(bg=self.entry_greska, highlightbackground=self.crvena,
+                     highlightcolor=self.crvena)
         self.greske[kljuc].config(text=poruka)
 
     def _ocisti_gresku(self, kljuc):
-        self.entries[kljuc].config(bg=self.entry_bg, highlightbackground=self.entry_bg,
-                                   highlightcolor=self.entry_bg)
+        e = self.entries[kljuc]
+        if isinstance(e, ttk.Combobox):
+            e.configure(style="TCombobox")
+        else:
+            e.config(bg=self.entry_bg, highlightbackground=self.entry_bg,
+                     highlightcolor=self.entry_bg)
         self.greske[kljuc].config(text="")
 
     def _sledece_polje(self, trenutni_kljuc):
@@ -304,8 +379,7 @@ class JokicApp(tk.Tk):
         frame.pack(fill="both", expand=True)
 
         cols = ("#", "Datum", "Protivnik", "Rezultat", "PTS", "AST", "REB", "MIN")
-        style = ttk.Style()
-        style.theme_use("clam")
+        style = self.style
         style.configure("Treeview", background=self.accent, foreground=self.text,
                         fieldbackground=self.accent, rowheight=24, font=("Helvetica", 9))
         style.configure("Treeview.Heading", background=self.panel, foreground=self.gold,
@@ -314,7 +388,7 @@ class JokicApp(tk.Tk):
                   foreground=[("selected", "#1a1a2e")])
 
         self.tree = ttk.Treeview(frame, columns=cols, show="headings", height=10)
-        widths = [30, 90, 110, 80, 40, 40, 40, 40]
+        widths = [30, 90, 170, 80, 40, 40, 40, 40]
         for col, w in zip(cols, widths):
             self.tree.heading(col, text=col)
             self.tree.column(col, width=w, anchor="center")
@@ -388,7 +462,10 @@ class JokicApp(tk.Tk):
         dodaj_utakmicu(v["datum"], v["protivnik"], v["poeni"], v["asistencije"],
                        v["skokovi"], v["minuti"], v["rezultat_denver"], v["rezultat_protivnik"])
         for e in self.entries.values():
-            e.delete(0, "end")
+            if isinstance(e, ttk.Combobox):
+                e.set("")
+            else:
+                e.delete(0, "end")
         self.entries["datum"].focus()
         self.osvezi_sve()
 
