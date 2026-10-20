@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import sqlite3
+import os
 from datetime import datetime
 
 
@@ -187,9 +188,21 @@ def izracunaj_statistiku():
 
 # ─── Aplikacija ──────────────────────────────────────────────────────────────
 
+# Folder u kom je ovaj fajl — da bi putanje radile odakle god se aplikacija pokrene
+FOLDER_APLIKACIJE = os.path.dirname(os.path.abspath(__file__))
+
 class JokicApp(tk.Tk):
     def __init__(self):
+        if os.name == "nt":
+            # Mora PRE pravljenja prozora: tako Windows na traci sa zadacima
+            # prikazuje ikonicu ove aplikacije, a ne ikonicu Python-a
+            try:
+                import ctypes
+                ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("jokic.statistika")
+            except Exception as greska:
+                print(f"Oznaka aplikacije nije postavljena: {greska}")
         super().__init__()
+        self._postavi_ikonicu()
         self.title("Nikola Jokić — Statistika za sezonu 2026/2027")
         self.geometry("1050x700")
         self.configure(bg="#1a1a2e")
@@ -208,6 +221,19 @@ class JokicApp(tk.Tk):
 
         self._build_ui()
         self.osvezi_sve()
+
+    def _postavi_ikonicu(self):
+        """Ikonica u naslovu prozora i na traci sa zadacima umesto Tkinter pera."""
+        try:
+            if os.name == "nt":  # Windows
+                # default= postavlja ikonicu za sve prozore aplikacije
+                self.iconbitmap(default=os.path.join(FOLDER_APLIKACIJE, "assets", "jokic.ico"))
+            else:  # Linux i macOS ne čitaju .ico, pa koristimo PNG
+                self._ikonica = tk.PhotoImage(file=os.path.join(FOLDER_APLIKACIJE, "assets", "jokic_icon.png"))
+                self.iconphoto(True, self._ikonica)
+        except Exception as greska:
+            # Aplikacija radi i bez ikonice; poruka se vidi kad se pokrene iz CMD-a
+            print(f"Ikonica nije postavljena: {greska}")
 
     def _build_ui(self):
         # Tema za ttk elemente (tabela, padajuća lista) — mora pre pravljenja elemenata
