@@ -22,26 +22,30 @@ def init_db():
             skokovi INTEGER,
             minuti INTEGER,
             rezultat_denver INTEGER,
-            rezultat_protivnik INTEGER
+            rezultat_protivnik INTEGER,
+            produzeci INTEGER DEFAULT 0
         )
     """)
-    # Starije baze nemaju kolone za rezultat — dodajemo ih ako fale
+    # Starije baze nemaju novije kolone — dodajemo ih ako fale
     postojece = [red[1] for red in c.execute("PRAGMA table_info(utakmice)")]
     for kolona in ("rezultat_denver", "rezultat_protivnik"):
         if kolona not in postojece:
             c.execute(f"ALTER TABLE utakmice ADD COLUMN {kolona} INTEGER")
+    if "produzeci" not in postojece:
+        # Ranije unete utakmice dobijaju 0, tj. bez produžetka
+        c.execute("ALTER TABLE utakmice ADD COLUMN produzeci INTEGER DEFAULT 0")
     conn.commit()
     conn.close()
 
 def dodaj_utakmicu(datum, protivnik, poeni, asistencije, skokovi, minuti,
-                   rezultat_denver=None, rezultat_protivnik=None):
+                   rezultat_denver=None, rezultat_protivnik=None, produzeci=0):
     conn = sqlite3.connect("jokic_statistika.db")
     c = conn.cursor()
     c.execute("""INSERT INTO utakmice (datum, protivnik, poeni, asistencije, skokovi, minuti,
-                                       rezultat_denver, rezultat_protivnik)
-                 VALUES (?,?,?,?,?,?,?,?)""",
+                                       rezultat_denver, rezultat_protivnik, produzeci)
+                 VALUES (?,?,?,?,?,?,?,?,?)""",
               (datum, protivnik, poeni, asistencije, skokovi, minuti,
-               rezultat_denver, rezultat_protivnik))
+               rezultat_denver, rezultat_protivnik, produzeci))
     conn.commit()
     conn.close()
 
@@ -50,7 +54,7 @@ def ucitaj_utakmice():
     c = conn.cursor()
     # Kolone navodimo po imenu, da redosled ne zavisi od toga kada su dodate
     c.execute("""SELECT id, datum, protivnik, poeni, asistencije, skokovi, minuti,
-                        rezultat_denver, rezultat_protivnik
+                        rezultat_denver, rezultat_protivnik, produzeci
                  FROM utakmice ORDER BY datum, id""")
     podaci = c.fetchall()
     conn.close()
@@ -70,12 +74,28 @@ def ishod(u):
         return None
     return "W" if denver > protivnik else "L"
 
+# Izbor u padajućoj listi „Produžeci“; redni broj u listi = broj produžetaka
+PRODUZECI = ["Bez produžetka", "OT", "2OT", "3OT", "4OT"]
+
+def oznaka_produzetka(broj):
+    """0 -> '', 1 -> 'OT', 2 -> '2OT' ..."""
+    if not broj:
+        return ""
+    return "OT" if broj == 1 else f"{broj}OT"
+
+def rezultat_brojevi(u):
+    """Rezultat bez W/L, npr. '121:118 OT'. Prazno ako rezultat nije unet."""
+    if u[7] is None or u[8] is None:
+        return ""
+    ot = oznaka_produzetka(u[9])
+    return f"{u[7]}:{u[8]}" + (f" {ot}" if ot else "")
+
 def rezultat_tekst(u):
-    """Tekst za tabelu, npr. 'W 112:105'."""
+    """Tekst za tabelu, npr. 'W 112:105' ili 'W 121:118 OT'."""
     i = ishod(u)
     if i is None:
         return "-"
-    return f"{i} {u[7]}:{u[8]}"
+    return f"{i} {rezultat_brojevi(u)}"
 
 # ─── Datum ────────────────────────────────────────────────────────────────────
 # Korisnik unosi i vidi datum u evropskom obliku (24.10.2026), a u bazi se čuva
@@ -136,6 +156,10 @@ def proveri_polje(kljuc, tekst):
         if tekst not in TIMOVI:
             raise ValueError("Izaberi tim sa liste")
         return tekst
+    if kljuc == "produzeci":
+        if tekst not in PRODUZECI:
+            raise ValueError("Izaberi sa liste")
+        return PRODUZECI.index(tekst)  # broj produžetaka
     try:
         broj = int(tekst)
     except ValueError:
@@ -152,6 +176,13 @@ def proveri_utakmicu(v):
         greske["rezultat_protivnik"] = "Nema nerešenih u NBA"
     if v["poeni"] > v["rezultat_denver"]:
         greske["poeni"] = "Više od poena Denvera"
+    # Regularno vreme je 48 minuta, a svaki produžetak još 5
+    najvise = 48 + 5 * v["produzeci"]
+    if v["minuti"] > najvise:
+        if v["produzeci"] == 0:
+            greske["minuti"] = "Više od 48 min bez produžetka"
+        else:
+            greske["minuti"] = f"Najviše {najvise} min uz {oznaka_produzetka(v['produzeci'])}"
     return greske
 
 def izracunaj_statistiku():
@@ -198,7 +229,7 @@ def osvezi_web_stranicu():
     try:
         podaci = web_stranica.pripremi_podatke(
             ucitaj_utakmice(), izracunaj_statistiku() or PRAZNA_STATISTIKA,
-            datum_za_prikaz, ishod)
+            datum_za_prikaz, ishod, rezultat_brojevi)
         web_stranica.napravi_stranicu(podaci)
     except Exception as greska:
         # Unos utakmica radi i ako stranica ne može da se napravi
@@ -294,6 +325,7 @@ class JokicApp(tk.Tk):
                  ("Protivnik:", "protivnik"),
                  ("Rezultat — Denver:", "rezultat_denver"),
                  ("Rezultat — protivnik:", "rezultat_protivnik"),
+                 ("Produžeci:", "produzeci"),
                  ("Poeni:", "poeni"),
                  ("Asistencije:", "asistencije"),
                  ("Skokovi:", "skokovi"),
@@ -326,6 +358,10 @@ class JokicApp(tk.Tk):
                 # Padajuća lista: širina prema najdužem nazivu (22 znaka)
                 e = ttk.Combobox(row, values=TIMOVI, state="readonly", width=24,
                                  font=("Helvetica", 10))
+            elif key == "produzeci":
+                e = ttk.Combobox(row, values=PRODUZECI, state="readonly", width=24,
+                                 font=("Helvetica", 10))
+                e.set(PRODUZECI[0])  # većina utakmica je bez produžetka
             else:
                 e = tk.Entry(row, bg=self.entry_bg, fg=self.text, insertbackground=self.text,
                              font=("Helvetica", 10), relief="flat", bd=4, width=14,
@@ -342,6 +378,9 @@ class JokicApp(tk.Tk):
                 # Kucanjem slova lista skače na tim; izbor mišem prelazi na sledeće polje
                 e.bind("<Key>", self._skok_na_tim)
                 e.bind("<<ComboboxSelected>>", lambda event: self._izabran_tim())
+            elif key == "produzeci":
+                e.bind("<Key>", self._skok_produzeci)
+                e.bind("<<ComboboxSelected>>", lambda event: self._izabrano("produzeci"))
             else:
                 # Čim korisnik počne da ispravlja, greška nestaje
                 e.bind("<Key>", lambda event, k=key: self._ocisti_gresku(k))
@@ -384,6 +423,24 @@ class JokicApp(tk.Tk):
             i = (kandidati.index(trenutni) + 1) % len(kandidati) if trenutni in kandidati else 0
             cb.set(kandidati[i])
         return "break"
+
+    def _skok_produzeci(self, event):
+        """Brojevi 0–4 biraju broj produžetaka; Backspace/Delete vraća na 'Bez produžetka'."""
+        self._ocisti_gresku("produzeci")
+        cb = self.entries["produzeci"]
+        if event.keysym in ("BackSpace", "Delete"):
+            cb.set(PRODUZECI[0])
+            return "break"
+        if event.char.isdigit() and int(event.char) < len(PRODUZECI):
+            cb.set(PRODUZECI[int(event.char)])
+            return "break"
+        if event.char and event.char.isprintable():
+            return "break"  # ostala slova se ignorišu
+        # strelice, Tab i Enter rade kao i inače
+
+    def _izabrano(self, kljuc):
+        self._ocisti_gresku(kljuc)
+        self._sledece_polje(kljuc)
 
     def _izabran_tim(self):
         self._ocisti_gresku("protivnik")
@@ -432,7 +489,7 @@ class JokicApp(tk.Tk):
                   foreground=[("selected", "#1a1a2e")])
 
         self.tree = ttk.Treeview(frame, columns=cols, show="headings", height=10)
-        widths = [30, 90, 170, 80, 40, 40, 40, 40]
+        widths = [30, 90, 170, 110, 40, 40, 40, 40]
         for col, w in zip(cols, widths):
             self.tree.heading(col, text=col)
             self.tree.column(col, width=w, anchor="center")
@@ -504,9 +561,12 @@ class JokicApp(tk.Tk):
             return
 
         dodaj_utakmicu(v["datum"], v["protivnik"], v["poeni"], v["asistencije"],
-                       v["skokovi"], v["minuti"], v["rezultat_denver"], v["rezultat_protivnik"])
-        for e in self.entries.values():
-            if isinstance(e, ttk.Combobox):
+                       v["skokovi"], v["minuti"], v["rezultat_denver"], v["rezultat_protivnik"],
+                       v["produzeci"])
+        for kljuc, e in self.entries.items():
+            if kljuc == "produzeci":
+                e.set(PRODUZECI[0])
+            elif isinstance(e, ttk.Combobox):
                 e.set("")
             else:
                 e.delete(0, "end")
