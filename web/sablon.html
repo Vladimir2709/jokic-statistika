@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nikola Jokić — Statistika 2026/27</title>
+<meta name="description" content="Statistika Nikole Jokića kroz NBA sezonu 2026/27: proseci, dabl-dablovi, tripl-dablovi i sve utakmice Denver Nuggetsa.">
+<link rel="icon" type="image/png" href="jokic_icon.png">
+<style>
+  :root {
+    --bg: #1a1a2e;
+    --panel: #16213e;
+    --accent: #0f3460;
+    --gold: #e2b714;
+    --text: #eaeaea;
+    --muted: #8f8fb3;
+    --win: #4cc38a;
+    --loss: #ff6b6b;
+    --line: rgba(255, 255, 255, 0.07);
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.45;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+
+  /* Zaglavlje */
+  header {
+    background: var(--gold);
+    color: var(--bg);
+  }
+  header .wrap {
+    display: flex; align-items: center; gap: 16px;
+    padding-top: 18px; padding-bottom: 18px;
+  }
+  header img { width: 64px; height: 64px; flex: none; }
+  header h1 { margin: 0; font-size: clamp(1.35rem, 4vw, 2rem); line-height: 1.15; }
+  header p { margin: 2px 0 0; font-weight: 600; opacity: 0.8; }
+
+  .azurirano { color: var(--muted); font-size: 0.9rem; margin: 18px 0 0; }
+
+  h2 {
+    font-size: 1.05rem; letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--gold); margin: 32px 0 12px;
+  }
+
+  /* Kartice sa prosecima */
+  .kartice {
+    display: grid; gap: 10px;
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .kartica {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; padding: 14px 12px; text-align: center;
+  }
+  .kartica .vrednost {
+    font-size: 1.9rem; font-weight: 800; color: var(--gold);
+    font-variant-numeric: tabular-nums; line-height: 1.1;
+  }
+  .kartica .naziv { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+
+  /* Poslednja utakmica */
+  .poslednja {
+    background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--gold);
+    border-radius: 10px; padding: 16px 18px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 10px 24px;
+  }
+  .poslednja .meč { font-size: 1.1rem; font-weight: 700; }
+  .poslednja .meč .datum { color: var(--muted); font-weight: 400; font-size: 0.9rem; display: block; }
+  .poslednja .brojke { display: flex; gap: 18px; font-variant-numeric: tabular-nums; }
+  .poslednja .brojke b { display: block; font-size: 1.5rem; color: var(--gold); line-height: 1.1; }
+  .poslednja .brojke span { color: var(--muted); font-size: 0.8rem; }
+
+  .ishod { font-weight: 700; white-space: nowrap; }
+  .ishod.W { color: var(--win); }
+  .ishod.L { color: var(--loss); }
+
+  .znacka {
+    display: inline-block; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.04em;
+    padding: 2px 7px; border-radius: 999px; white-space: nowrap; vertical-align: middle;
+  }
+  .znacka.td { background: var(--gold); color: var(--bg); }
+  .znacka.dd { border: 1px solid var(--gold); color: var(--gold); }
+
+  /* Tabela utakmica */
+  .tabela-okvir {
+    overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--panel);
+  }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th, td { padding: 10px 12px; text-align: center; white-space: nowrap; }
+  th {
+    color: var(--gold); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em;
+    background: var(--accent); position: sticky; top: 0;
+  }
+  td { border-top: 1px solid var(--line); }
+  td.tim, th.tim { text-align: left; }
+  td.br { color: var(--muted); }
+  td.dvocifren { color: var(--gold); font-weight: 700; }
+  tbody tr:hover { background: rgba(255, 255, 255, 0.03); }
+
+  /* Lista utakmica za telefon (umesto široke tabele) */
+  .lista { display: none; }
+  .lista .red {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 12px; margin-bottom: 8px;
+  }
+  .lista .gore { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+  .lista .tim { font-weight: 600; }
+  .lista .meta { color: var(--muted); font-size: 0.82rem; }
+  .lista .dole {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin-top: 4px;
+    font-variant-numeric: tabular-nums; font-size: 0.92rem;
+  }
+  .lista .dole span:not(.znacka) { color: var(--muted); font-size: 0.78rem; }
+  .lista .dole b.dvocifren { color: var(--gold); }
+
+  .prazno {
+    background: var(--panel); border: 1px dashed var(--line); border-radius: 10px;
+    padding: 28px 18px; text-align: center; color: var(--muted);
+  }
+
+  footer {
+    color: var(--muted); font-size: 0.85rem; text-align: center;
+    padding: 36px 16px 28px;
+  }
+  footer a { color: var(--gold); }
+
+  @media (max-width: 640px) {
+    .tabela-okvir { display: none; }
+    .lista { display: block; }
+  }
+  @media (max-width: 520px) {
+    header img { width: 48px; height: 48px; }
+    .kartice { grid-template-columns: repeat(2, 1fr); }
+    .kartica .vrednost { font-size: 1.6rem; }
+    th, td { padding: 9px 8px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <img src="jokic_icon.png" alt="">
+    <div>
+      <h1>Nikola Jokić — sezona 2026/27</h1>
+      <p>Denver Nuggets · statistika utakmica</p>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <p class="azurirano" id="azurirano"></p>
+
+  <h2>Statistika sezone</h2>
+  <div class="kartice" id="kartice"></div>
+
+  <section id="poslednja-sekcija" hidden>
+    <h2>Poslednja utakmica</h2>
+    <div class="poslednja" id="poslednja"></div>
+  </section>
+
+  <h2>Sve utakmice</h2>
+  <div id="utakmice"></div>
+</main>
+
+<footer>
+  Podatke unosim ručno posle svake utakmice.<br>
+  Projekat i ceo kod: <a href="https://github.com/Vladimir2709/jokic-statistika">github.com/Vladimir2709/jokic-statistika</a>
+</footer>
+
+<script>
+// Podatke ovde upisuje aplikacija (jokic_app.py) svaki put kad se doda ili obriše utakmica.
+const PODACI = __PODACI__;
+
+const s = PODACI.statistika;
+const utakmice = PODACI.utakmice;
+const jedna = (x) => x.toFixed(1);
+
+document.getElementById("azurirano").textContent = "Ažurirano: " + PODACI.azurirano;
+
+// Kartice: prvo Jokićev učinak (proseci po utakmici), zatim ukupno u sezoni
+const kartice = [
+  [jedna(s.prosek_poena), "Prosek poena"],
+  [jedna(s.prosek_ast), "Prosek asistencija"],
+  [jedna(s.prosek_sko), "Prosek skokova"],
+  [jedna(s.prosek_min), "Prosek minuta"],
+  [s.utakmice, "Utakmice"],
+  [s.pobede + "-" + s.porazi, "Pobede-porazi"],
+  [s.dabl_dabl, "Dabl-dabl"],
+  [s.tripl_dabl, "Tripl-dabl"],
+];
+document.getElementById("kartice").innerHTML = kartice.map(([v, n]) =>
+  `<div class="kartica"><div class="vrednost">${v}</div><div class="naziv">${n}</div></div>`
+).join("");
+
+function znacka(u) {
+  if (u.ucinak === "TD") return '<span class="znacka td">TRIPL-DABL</span>';
+  if (u.ucinak === "DD") return '<span class="znacka dd">DABL-DABL</span>';
+  return "";
+}
+function ishod(u) {
+  return u.ishod ? `<span class="ishod ${u.ishod}">${u.ishod} ${u.rezultat}</span>` : "–";
+}
+const dvocifren = (x) => (x >= 10 ? ' class="dvocifren"' : "");
+
+if (utakmice.length === 0) {
+  document.getElementById("utakmice").innerHTML =
+    '<div class="prazno">Sezona tek počinje — prva utakmica stiže uskoro. 🏀</div>';
+} else {
+  // Poslednja utakmica (najnovija po datumu)
+  const p = utakmice[utakmice.length - 1];
+  document.getElementById("poslednja-sekcija").hidden = false;
+  document.getElementById("poslednja").innerHTML = `
+    <div class="meč">
+      <span class="datum">#${p.redni} · ${p.datum}</span>
+      vs ${p.protivnik} &nbsp;${ishod(p)} ${znacka(p)}
+    </div>
+    <div class="brojke">
+      <div><b>${p.poeni}</b><span>PTS</span></div>
+      <div><b>${p.asistencije}</b><span>AST</span></div>
+      <div><b>${p.skokovi}</b><span>REB</span></div>
+      <div><b>${p.minuti}</b><span>MIN</span></div>
+    </div>`;
+
+  // Tabela: hronološki, prva utakmica na vrhu
+  const redovi = utakmice.map((u) => `
+    <tr>
+      <td class="br">${u.redni}</td>
+      <td>${u.datum}</td>
+      <td class="tim">${u.protivnik}</td>
+      <td>${ishod(u)}</td>
+      <td${dvocifren(u.poeni)}>${u.poeni}</td>
+      <td${dvocifren(u.asistencije)}>${u.asistencije}</td>
+      <td${dvocifren(u.skokovi)}>${u.skokovi}</td>
+      <td>${u.minuti}</td>
+      <td>${znacka(u)}</td>
+    </tr>`).join("");
+  // Ista lista za telefon: svaka utakmica u dva reda
+  const b = (x) => `<b${dvocifren(x)}>${x}</b>`;
+  const listaRedovi = utakmice.map((u) => `
+    <div class="red">
+      <div class="gore">
+        <div><span class="meta">#${u.redni} · ${u.datum}</span><br><span class="tim">${u.protivnik}</span></div>
+        <div>${ishod(u)}</div>
+      </div>
+      <div class="dole">
+        <div>${b(u.poeni)} <span>PTS</span></div>
+        <div>${b(u.asistencije)} <span>AST</span></div>
+        <div>${b(u.skokovi)} <span>REB</span></div>
+        <div>${u.minuti} <span>MIN</span></div>
+        ${znacka(u)}
+      </div>
+    </div>`).join("");
+
+  document.getElementById("utakmice").innerHTML = `
+    <div class="tabela-okvir"><table>
+      <thead><tr>
+        <th>#</th><th>Datum</th><th class="tim">Protivnik</th><th>Rezultat</th>
+        <th>PTS</th><th>AST</th><th>REB</th><th>MIN</th><th></th>
+      </tr></thead>
+      <tbody>${redovi}</tbody>
+    </table></div>
+    <div class="lista">${listaRedovi}</div>`;
+}
+</script>
+</body>
+</html>

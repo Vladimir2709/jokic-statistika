@@ -4,6 +4,8 @@ import sqlite3
 import os
 from datetime import datetime
 
+import web_stranica
+
 
 # ─── Baza podataka ───────────────────────────────────────────────────────────
 
@@ -185,6 +187,22 @@ def izracunaj_statistiku():
         "dabl_dabl": dabl_dabl,
         "tripl_dabl": tripl_dabl,
     }
+
+PRAZNA_STATISTIKA = {"utakmice": 0, "pobede": 0, "porazi": 0,
+                     "prosek_poena": 0, "prosek_ast": 0, "prosek_sko": 0,
+                     "prosek_min": 0, "dabl_dabl": 0, "tripl_dabl": 0}
+
+def osvezi_web_stranicu():
+    """Pravi docs/index.html sa trenutnim podacima. Posle `git push` ta stranica
+    je javno dostupna preko GitHub Pages."""
+    try:
+        podaci = web_stranica.pripremi_podatke(
+            ucitaj_utakmice(), izracunaj_statistiku() or PRAZNA_STATISTIKA,
+            datum_za_prikaz, ishod)
+        web_stranica.napravi_stranicu(podaci)
+    except Exception as greska:
+        # Unos utakmica radi i ako stranica ne može da se napravi
+        print(f"Web stranica nije osvežena: {greska}")
 
 # ─── Aplikacija ──────────────────────────────────────────────────────────────
 
@@ -494,6 +512,7 @@ class JokicApp(tk.Tk):
                 e.delete(0, "end")
         self.entries["datum"].focus()
         self.osvezi_sve()
+        osvezi_web_stranicu()
 
     def obrisi(self):
         sel = self.tree.selection()
@@ -505,6 +524,7 @@ class JokicApp(tk.Tk):
         if messagebox.askyesno("Potvrda", "Da li ste sigurni da želite da obrišete ovu utakmicu?"):
             obrisi_utakmicu(utakmica_id)
             self.osvezi_sve()
+            osvezi_web_stranicu()
 
     def osvezi_sve(self):
         # Lista
@@ -522,21 +542,17 @@ class JokicApp(tk.Tk):
         self.tree.yview_moveto(1)
 
         # Statistika
-        s = izracunaj_statistiku()
-        if s:
-            self._osvezi_kartice(s)
-           
-        else:
-            self._osvezi_kartice({"utakmice": 0, "pobede": 0, "porazi": 0,
-                                   "prosek_poena": 0, "prosek_ast": 0,
-                                   "prosek_sko": 0, "prosek_min": 0, "dabl_dabl": 0, "tripl_dabl": 0})
-            
+        self._osvezi_kartice(izracunaj_statistiku() or PRAZNA_STATISTIKA)
 
 
 # ─── Pokretanje ───────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     init_db()
+    # Stranica se pravi pri prvom pokretanju, a posle samo kad se doda ili obriše
+    # utakmica — tako se ne menja (ni u Git-u) svaki put kad se aplikacija otvori
+    if not os.path.exists(os.path.join(web_stranica.IZLAZ, "index.html")):
+        osvezi_web_stranicu()
     app = JokicApp()
 
     app.mainloop()
