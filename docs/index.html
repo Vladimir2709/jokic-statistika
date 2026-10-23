@@ -176,19 +176,35 @@
 <script>
 // Podatke ovde upisuje aplikacija (jokic_app.py) svaki put kad se doda ili obriše utakmica.
 const PODACI = {
- "azurirano": "21.10.2026. u 20:57",
+ "azurirano": "23.10.2026. u 20:37",
  "statistika": {
-  "utakmice": 0,
   "pobede": 0,
-  "porazi": 0,
-  "prosek_poena": 0,
-  "prosek_ast": 0,
-  "prosek_sko": 0,
-  "prosek_min": 0,
+  "porazi": 1,
+  "utakmice": 1,
+  "ukupno_poena": 13,
+  "ukupno_ast": 5,
+  "ukupno_sko": 7,
+  "prosek_poena": 13.0,
+  "prosek_ast": 5.0,
+  "prosek_sko": 7.0,
+  "prosek_min": 35.0,
   "dabl_dabl": 0,
   "tripl_dabl": 0
  },
- "utakmice": []
+ "utakmice": [
+  {
+   "redni": 1,
+   "datum": "23.10.2026",
+   "protivnik": "Oklahoma City Thunder",
+   "poeni": 13,
+   "asistencije": 5,
+   "skokovi": 7,
+   "minuti": 35,
+   "ishod": "L",
+   "rezultat": "84:96",
+   "ucinak": ""
+  }
+ ]
 };
 
 const s = PODACI.statistika;
