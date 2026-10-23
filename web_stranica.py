@@ -20,7 +20,7 @@ def _ucinak(poeni, asistencije, skokovi):
     return {3: "TD", 2: "DD"}.get(kategorije, "")
 
 
-def pripremi_podatke(utakmice, statistika, datum_za_prikaz, ishod):
+def pripremi_podatke(utakmice, statistika, datum_za_prikaz, ishod, rezultat_brojevi):
     """Pretvara redove iz baze u podatke koje stranica prikazuje."""
     lista = []
     for redni, u in enumerate(utakmice, start=1):
@@ -33,7 +33,7 @@ def pripremi_podatke(utakmice, statistika, datum_za_prikaz, ishod):
             "skokovi": u[5],
             "minuti": u[6],
             "ishod": ishod(u),
-            "rezultat": f"{u[7]}:{u[8]}" if u[7] is not None else "",
+            "rezultat": rezultat_brojevi(u),  # npr. '121:118 OT'
             "ucinak": _ucinak(u[3], u[4], u[5]),
         })
     return {
