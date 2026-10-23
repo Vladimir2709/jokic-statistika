@@ -7,12 +7,16 @@ dabl-dablove, tripl-dablove i bilans pobeda i poraza.
 Ovo je moj projekat za učenje programiranja: aplikacija raste tokom sezone,
 a svaka izmena je zabeležena u istoriji commit-ova.
 
-> 📊 **Uskoro:** web stranica sa statistikom koju svako može da otvori preko linka,
-> bez instaliranja.
+## 📊 Pogledaj statistiku uživo
+
+### 👉 [vladimir2709.github.io/jokic-statistika](https://vladimir2709.github.io/jokic-statistika/)
+
+Stranica radi i na računaru i na telefonu, bez instaliranja.
+Ažurira se posle svake utakmice.
 
 ## Šta se prati
 
-- Datum, protivnik i rezultat utakmice (pobeda/poraz)
+- Datum, protivnik i rezultat utakmice (pobeda/poraz, produžeci)
 - Poeni, asistencije, skokovi i minuti u igri
 - Proseci po utakmici: poeni, asistencije, skokovi, minuti
 - Dabl-dablovi i tripl-dablovi (tripl-dabl se ne računa i kao dabl-dabl)
@@ -52,7 +56,9 @@ Moji podaci sa sezone nisu deo repozitorijuma, pa kod sebe kreneš od nule.
 
 ## Planirano
 
-- [ ] Web stranica sa statistikom (GitHub Pages)
+- [x] Web stranica sa statistikom (GitHub Pages)
+- [ ] Najave utakmica sa vremenom početka
+- [ ] Engleska verzija stranice
 - [ ] Rekordi sezone
 - [ ] Statistika po protivniku
 - [ ] Tip utakmice: regularna sezona / plej-of
