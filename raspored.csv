@@ -1,0 +1,25 @@
+# Raspored Denver Nuggets 2026/27 (regularna sezona)
+# datum_us = datum utakmice po američkom (lokalnom) vremenu
+# pocetak_utc = početak u UTC vremenu (prazno ako još nije poznato)
+# mesto: D = Denver je domaćin, G = Denver je gost, N = neutralni teren
+# Izvori: Sports Media Watch, Wikipedia (2026–27 Denver Nuggets season)
+datum_us,pocetak_utc,protivnik,mesto,napomena
+2026-10-22,2026-10-23T01:30:00Z,Oklahoma City Thunder,G,
+2026-10-24,2026-10-25T01:00:00Z,New Orleans Pelicans,D,
+2026-10-26,2026-10-27T02:00:00Z,Golden State Warriors,D,
+2026-10-28,2026-10-29T00:00:00Z,New Orleans Pelicans,G,
+2026-10-30,2026-10-31T02:00:00Z,Phoenix Suns,G,NBA Cup
+2026-11-02,2026-11-03T02:00:00Z,Portland Trail Blazers,D,
+2026-11-04,2026-11-05T02:00:00Z,Toronto Raptors,D,
+2026-11-07,2026-11-07T22:00:00Z,Indiana Pacers,N,Meksiko Siti
+2026-11-09,,Houston Rockets,G,
+2026-11-11,,Memphis Grizzlies,G,
+2026-11-14,,New Orleans Pelicans,G,
+2026-11-16,,Phoenix Suns,D,
+2026-11-18,,Boston Celtics,D,
+2026-11-20,2026-11-21T03:00:00Z,Houston Rockets,D,
+2026-11-22,,Chicago Bulls,G,
+2026-11-24,2026-11-25T03:00:00Z,Dallas Mavericks,D,
+2026-11-27,,Utah Jazz,G,
+2026-11-29,,Toronto Raptors,G,
+2026-11-30,,Detroit Pistons,G,

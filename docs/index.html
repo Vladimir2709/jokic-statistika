@@ -145,6 +145,34 @@
   .red .detalji .pct { font-size: 0.7rem; }
   .uputstvo { color: var(--muted); font-size: 0.85rem; margin: -4px 0 10px; }
 
+
+  /* Sledeća utakmica (najava) */
+  .sledeca {
+    background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--win);
+    border-radius: 10px; padding: 16px 18px;
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 24px;
+  }
+  .sledeca .protiv { font-size: 1.15rem; font-weight: 700; }
+  .sledeca .protiv .oznaka { color: var(--muted); font-weight: 600; margin-right: 4px; }
+  .sledeca .kada { color: var(--muted); font-size: 0.92rem; margin-top: 2px; }
+  .sledeca .kada b { color: var(--text); }
+  .odbrojavanje { text-align: right; }
+  .odbrojavanje b { display: block; font-size: 1.6rem; color: var(--gold); font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .odbrojavanje span { color: var(--muted); font-size: 0.8rem; }
+  .uzivo {
+    display: inline-block; background: var(--loss); color: #fff; font-weight: 800; font-size: 0.8rem;
+    letter-spacing: 0.06em; padding: 3px 9px; border-radius: 999px; animation: puls 1.4s infinite;
+  }
+  @keyframes puls { 50% { opacity: 0.55; } }
+  .naredne { margin-top: 8px; display: grid; gap: 6px; }
+  .naredne div {
+    display: flex; flex-wrap: wrap; gap: 4px 12px; color: var(--muted); font-size: 0.88rem;
+    padding: 8px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+  }
+  .naredne b { color: var(--text); font-weight: 600; }
+  .napomena-vreme { color: var(--muted); font-size: 0.78rem; margin: 6px 0 0; }
+  .mesto-oznaka { color: var(--muted); font-weight: 600; margin-right: 3px; }
+
   .prazno {
     background: var(--panel); border: 1px dashed var(--line); border-radius: 10px;
     padding: 28px 18px; text-align: center; color: var(--muted);
@@ -161,6 +189,7 @@
     .lista { display: block; }
   }
   @media (max-width: 520px) {
+    .odbrojavanje { text-align: left; }
     header img { width: 48px; height: 48px; }
     .kartice { grid-template-columns: repeat(2, 1fr); }
     .kartica .vrednost { font-size: 1.6rem; }
@@ -181,6 +210,13 @@
 
 <main class="wrap">
   <p class="azurirano" id="azurirano"></p>
+
+  <section id="sledeca-sekcija" hidden>
+    <h2>Sledeća utakmica</h2>
+    <div class="sledeca" id="sledeca"></div>
+    <div class="naredne" id="naredne"></div>
+    <p class="napomena-vreme">Vreme je prikazano po satu tvog uređaja.</p>
+  </section>
 
   <h2>Statistika sezone</h2>
   <div class="kartice" id="kartice"></div>
@@ -203,7 +239,7 @@
 <script>
 // Podatke ovde upisuje aplikacija (jokic_app.py) svaki put kad se doda ili obriše utakmica.
 const PODACI = {
- "azurirano": "24.10.2026. u 08:13",
+ "azurirano": "24.10.2026. u 08:31",
  "statistika": {
   "pobede": 0,
   "porazi": 1,
@@ -242,13 +278,204 @@ const PODACI = {
     "izgubljene": 2,
     "faulovi": 3,
     "plus_minus": -20
-   }
+   },
+   "mesto": "G"
+  }
+ ],
+ "raspored": [
+  {
+   "datum_us": "2026-10-22",
+   "pocetak_utc": "2026-10-23T01:30:00Z",
+   "protivnik": "Oklahoma City Thunder",
+   "mesto": "G",
+   "napomena": ""
+  },
+  {
+   "datum_us": "2026-10-24",
+   "pocetak_utc": "2026-10-25T01:00:00Z",
+   "protivnik": "New Orleans Pelicans",
+   "mesto": "D",
+   "napomena": ""
+  },
+  {
+   "datum_us": "2026-10-26",
+   "pocetak_utc": "2026-10-27T02:00:00Z",
+   "protivnik": "Golden State Warriors",
+   "mesto": "D",
+   "napomena": ""
+  },
+  {
+   "datum_us": "2026-10-28",
+   "pocetak_utc": "2026-10-29T00:00:00Z",
+   "protivnik": "New Orleans Pelicans",
+   "mesto": "G",
+   "napomena": ""
+  },
+  {
+   "datum_us": "2026-10-30",
+   "pocetak_utc": "2026-10-31T02:00:00Z",
+   "protivnik": "Phoenix Suns",
+   "mesto": "G",
+   "napomena": "NBA Cup"
+  },
+  {
+   "datum_us": "2026-11-02",
+   "pocetak_utc": "2026-11-03T02:00:00Z",
+   "protivnik": "Portland Trail Blazers",
+   "mesto": "D",
+   "napomena": ""
+  },
+  {
+   "datum_us": "2026-11-04",
+   "pocetak_utc": "2026-11-05T02:00:00Z",
+   "protivnik": "Toronto Raptors",
+   "mesto": "D",
+   "napomena": ""
+  },
+  {
+   "datum_us": "2026-11-07",
+   "pocetak_utc": "2026-11-07T22:00:00Z",
+   "protivnik": "Indiana Pacers",
+   "mesto": "N",
+   "napomena": "Meksiko Siti"
+  },
+  {
+   "datum_us": "2026-11-09",
+   "pocetak_utc": null,
+   "protivnik": "Houston Rockets",
+   "mesto": "G",
+   "napomena": ""
+  },
+  {
+   "datum_us": "2026-11-11",
+   "pocetak_utc": null,
+   "protivnik": "Memphis Grizzlies",
+   "mesto": "G",
+   "napomena": ""
+  },
+  {
+   "datum_us": "2026-11-14",
+   "pocetak_utc": null,
+   "protivnik": "New Orleans Pelicans",
+   "mesto": "G",
+   "napomena": ""
+  },
+  {
+   "datum_us": "2026-11-16",
+   "pocetak_utc": null,
+   "protivnik": "Phoenix Suns",
+   "mesto": "D",
+   "napomena": ""
+  },
+  {
+   "datum_us": "2026-11-18",
+   "pocetak_utc": null,
+   "protivnik": "Boston Celtics",
+   "mesto": "D",
+   "napomena": ""
+  },
+  {
+   "datum_us": "2026-11-20",
+   "pocetak_utc": "2026-11-21T03:00:00Z",
+   "protivnik": "Houston Rockets",
+   "mesto": "D",
+   "napomena": ""
+  },
+  {
+   "datum_us": "2026-11-22",
+   "pocetak_utc": null,
+   "protivnik": "Chicago Bulls",
+   "mesto": "G",
+   "napomena": ""
+  },
+  {
+   "datum_us": "2026-11-24",
+   "pocetak_utc": "2026-11-25T03:00:00Z",
+   "protivnik": "Dallas Mavericks",
+   "mesto": "D",
+   "napomena": ""
+  },
+  {
+   "datum_us": "2026-11-27",
+   "pocetak_utc": null,
+   "protivnik": "Utah Jazz",
+   "mesto": "G",
+   "napomena": ""
+  },
+  {
+   "datum_us": "2026-11-29",
+   "pocetak_utc": null,
+   "protivnik": "Toronto Raptors",
+   "mesto": "G",
+   "napomena": ""
+  },
+  {
+   "datum_us": "2026-11-30",
+   "pocetak_utc": null,
+   "protivnik": "Detroit Pistons",
+   "mesto": "G",
+   "napomena": ""
   }
  ]
 };
 
 const s = PODACI.statistika;
 const utakmice = PODACI.utakmice;
+const raspored = PODACI.raspored || [];
+
+// vs = Denver je domaćin (ili neutralni teren), @ = Denver je gost
+const oznaka = (mesto) => (mesto === "G" ? "@" : mesto ? "vs" : "");
+const oznakaHtml = (mesto) => (mesto ? `<span class="mesto-oznaka">${oznaka(mesto)}</span>` : "");
+
+// ── Najava: sledeća utakmica iz rasporeda ──
+function pocetak(r) {
+  // Ako vreme još nije poznato, uzima se kraj tog dana u Americi
+  return new Date(r.pocetak_utc || r.datum_us + "T23:59:00-05:00").getTime();
+}
+const fDatum = new Intl.DateTimeFormat("sr-Latn-RS", { weekday: "long", day: "numeric", month: "long" });
+const fKratko = new Intl.DateTimeFormat("sr-Latn-RS", { weekday: "short", day: "numeric", month: "numeric" });
+const fVreme = new Intl.DateTimeFormat("sr-Latn-RS", { hour: "2-digit", minute: "2-digit" });
+const TRAJANJE = 3 * 60 * 60 * 1000;  // utakmica traje oko 2,5 h; posle 3 h prelazi se na sledeću
+
+function mestoTekst(r) {
+  if (r.mesto === "D") return "kod kuće";
+  if (r.mesto === "G") return "u gostima";
+  return "neutralni teren";
+}
+function prikaziNajavu() {
+  const sad = Date.now();
+  const i = raspored.findIndex((r) => pocetak(r) + TRAJANJE > sad);
+  if (i < 0) return;  // raspored je završen ili nije unet
+  const r = raspored[i];
+  const t = new Date(pocetak(r));
+  const kada = r.pocetak_utc
+    ? `<b>${fDatum.format(t)}</b> u <b>${fVreme.format(t)}</b>`
+    : `<b>${r.datum_us.split("-").reverse().join(".")}.</b> (američki datum) · tačno vreme uskoro`;
+  let desno = "";
+  const razlika = t.getTime() - sad;
+  if (r.pocetak_utc && razlika <= 0) {
+    desno = '<span class="uzivo">● U TOKU</span>';
+  } else if (r.pocetak_utc) {
+    const min = Math.floor(razlika / 60000), d = Math.floor(min / 1440), h = Math.floor((min % 1440) / 60), m = min % 60;
+    const tekst = d > 0 ? `${d} d ${h} h` : h > 0 ? `${h} h ${m} min` : `${m} min`;
+    desno = `<div class="odbrojavanje"><span>počinje za</span><b>${tekst}</b></div>`;
+  }
+  document.getElementById("sledeca").innerHTML = `
+    <div>
+      <div class="protiv"><span class="oznaka">${oznaka(r.mesto)}</span>${r.protivnik}</div>
+      <div class="kada">${kada}</div>
+      <div class="kada">${mestoTekst(r)}${r.napomena ? " · " + r.napomena : ""}</div>
+    </div>
+    ${desno}`;
+  document.getElementById("naredne").innerHTML = raspored.slice(i + 1, i + 4).map((n) => {
+    const tn = new Date(pocetak(n));
+    const k = n.pocetak_utc ? `${fKratko.format(tn)} · ${fVreme.format(tn)}` : `${n.datum_us.split("-").reverse().join(".")}. (SAD)`;
+    return `<div><span>${k}</span><b>${oznaka(n.mesto)} ${n.protivnik}</b>${n.napomena ? `<span>${n.napomena}</span>` : ""}</div>`;
+  }).join("");
+  document.getElementById("sledeca-sekcija").hidden = false;
+}
+prikaziNajavu();
+setInterval(prikaziNajavu, 30000);  // odbrojavanje se osvežava na svakih 30 sekundi
 const jedna = (x) => x.toFixed(1);
 
 document.getElementById("azurirano").textContent = "Ažurirano: " + PODACI.azurirano;
@@ -306,7 +533,7 @@ if (utakmice.length === 0) {
   document.getElementById("poslednja").innerHTML = `
     <div class="meč">
       <span class="datum">#${p.redni} · ${p.datum}</span>
-      vs ${p.protivnik} &nbsp;${ishod(p)} ${znacka(p)}
+      ${oznaka(p.mesto) || "vs"} ${p.protivnik} &nbsp;${ishod(p)} ${znacka(p)}
     </div>
     <div class="brojke">
       <div><b>${p.poeni}</b><span>PTS</span></div>
@@ -320,7 +547,7 @@ if (utakmice.length === 0) {
     <tr class="${u.detalji ? "ima-detalje" : ""}" data-i="${i}">
       <td class="br">${u.detalji ? '<span class="strelica"></span> ' : ""}${u.redni}</td>
       <td>${u.datum}</td>
-      <td class="tim">${u.protivnik}</td>
+      <td class="tim">${oznakaHtml(u.mesto)}${u.protivnik}</td>
       <td>${ishod(u)}</td>
       <td${dvocifren(u.poeni)}>${u.poeni}</td>
       <td${dvocifren(u.asistencije)}>${u.asistencije}</td>
@@ -334,7 +561,7 @@ if (utakmice.length === 0) {
   const listaRedovi = utakmice.map((u, i) => `
     <div class="red ${u.detalji ? "ima-detalje" : ""}" data-i="${i}">
       <div class="gore">
-        <div><span class="meta">#${u.redni} · ${u.datum}</span><br><span class="tim">${u.protivnik}</span></div>
+        <div><span class="meta">#${u.redni} · ${u.datum}</span><br><span class="tim">${oznakaHtml(u.mesto)}${u.protivnik}</span></div>
         <div>${ishod(u)} ${u.detalji ? '<span class="strelica"></span>' : ""}</div>
       </div>
       <div class="dole">

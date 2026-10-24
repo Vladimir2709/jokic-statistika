@@ -707,12 +707,14 @@ class JokicApp(tk.Tk):
 
 if __name__ == "__main__":
     init_db()
-    # Stranica se pravi pri prvom pokretanju, kad se promeni njen izgled (šablon)
+    # Stranica se pravi pri prvom pokretanju, kad se promeni izgled (šablon) ili raspored
     # i kad se doda ili obriše utakmica — ne svaki put kad se aplikacija otvori,
     # da se ne bi menjala (ni u Git-u) bez razloga
     stranica = os.path.join(web_stranica.IZLAZ, "index.html")
+    izvori = [web_stranica.SABLON, web_stranica.RASPORED]
     if (not os.path.exists(stranica)
-            or os.path.getmtime(web_stranica.SABLON) > os.path.getmtime(stranica)):
+            or any(os.path.exists(f) and os.path.getmtime(f) > os.path.getmtime(stranica)
+                   for f in izvori)):
         osvezi_web_stranicu()
     app = JokicApp()
 
