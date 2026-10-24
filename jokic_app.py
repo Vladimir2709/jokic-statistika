@@ -341,23 +341,35 @@ class JokicApp(tk.Tk):
         tk.Label(header, text="🏀  Nikola Jokić — Statistika za sezonu 2026/2027",
                  font=("Helvetica", 18, "bold"), bg=self.gold, fg="#1a1a2e").pack()
 
-        # Glavni kontejner
-        main = tk.Frame(self, bg=self.bg)
+        # Glavni kontejner: leva i desna strana sa ručkom između (prevlači se mišem)
+        ruckica = dict(bg=self.accent, bd=0, sashwidth=6, sashrelief="flat", opaqueresize=True)
+        main = tk.PanedWindow(self, orient="horizontal", **ruckica)
         main.pack(fill="both", expand=True, padx=12, pady=8)
 
-        # Leva kolona — unos + lista
+        # Leva strana — forma za unos
         levo = tk.Frame(main, bg=self.bg)
-        levo.pack(side="left", fill="both", expand=False, padx=(0, 8))
-
         self._build_forma(levo)
-        self._build_lista(levo)
+        main.add(levo, minsize=360, stretch="never")
 
-        # Desna kolona — statistika
+        # Desna strana — kartice gore, ispod prazan prostor i lista utakmica
         desno = tk.Frame(main, bg=self.bg)
-        desno.pack(side="left", fill="both", expand=True)
-
+        main.add(desno, minsize=400, stretch="always")
         self._build_stats_kartice(desno)
-        
+
+        # Prazan prostor (rezervisan za buduće ideje) i lista, sa ručkom između
+        self.desno_pane = tk.PanedWindow(desno, orient="vertical", **ruckica)
+        self.desno_pane.pack(fill="both", expand=True)
+        self.prazan_prostor = tk.Frame(self.desno_pane, bg=self.bg)
+        self.desno_pane.add(self.prazan_prostor, minsize=0, stretch="always")
+        self.desno_pane.add(self._build_lista(self.desno_pane), minsize=150, stretch="always")
+        # Na početku lista zauzima donju polovinu
+        self.after(200, self._lista_na_polovinu)
+
+    def _lista_na_polovinu(self):
+        visina = self.desno_pane.winfo_height()
+        if visina > 1:
+            self.desno_pane.sash_place(0, 0, visina // 2)
+
 
     # ── Forma za unos ────────────────────────────────────────────────────────
 
@@ -562,7 +574,6 @@ class JokicApp(tk.Tk):
         frame = tk.LabelFrame(parent, text=" Odigrane utakmice ", font=("Helvetica", 11, "bold"),
                               bg=self.panel, fg=self.gold, bd=1, relief="groove",
                               labelanchor="n", padx=6, pady=6)
-        frame.pack(fill="both", expand=True)
 
         cols = ("#", "Datum", "Protivnik", "Rezultat", "PTS", "AST", "REB", "MIN")
         style = self.style
@@ -579,15 +590,17 @@ class JokicApp(tk.Tk):
             self.tree.heading(col, text=col)
             self.tree.column(col, width=w, anchor="center")
 
+        # Dugme ispod tabele, desno
+        tk.Button(frame, text="🗑  Obriši izabranu", font=("Helvetica", 9),
+                  bg="#7a1a1a", fg=self.text, activebackground="#a02020",
+                  relief="flat", cursor="hand2", padx=10,
+                  command=self.obrisi).pack(side="bottom", anchor="e", pady=(6, 0))
+
         scroll = ttk.Scrollbar(frame, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscrollcommand=scroll.set)
         self.tree.pack(side="left", fill="both", expand=True)
         scroll.pack(side="right", fill="y")
-
-        tk.Button(frame, text="🗑  Obriši izabranu", font=("Helvetica", 9),
-                  bg="#7a1a1a", fg=self.text, activebackground="#a02020",
-                  relief="flat", cursor="hand2",
-                  command=self.obrisi).pack(fill="x", pady=(6, 0))
+        return frame  # okvir ubacuje onaj ko poziva (u PanedWindow)
 
     # ── Statistika kartice ────────────────────────────────────────────────────
 
