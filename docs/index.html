@@ -119,6 +119,32 @@
   .lista .dole span:not(.znacka) { color: var(--muted); font-size: 0.78rem; }
   .lista .dole b.dvocifren { color: var(--gold); }
 
+
+  /* Detalji utakmice (klik na red) */
+  tr.ima-detalje, .red.ima-detalje { cursor: pointer; }
+  .strelica { color: var(--muted); font-size: 0.8rem; }
+  .strelica::before { content: "▸"; }
+  .otvoren .strelica { color: var(--gold); }
+  .otvoren .strelica::before { content: "▾"; }
+  tr.detalji-red td { border-top: none; padding-top: 0; background: rgba(255,255,255,0.02); }
+  .detalji {
+    display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    padding: 6px 4px 12px; text-align: center;
+  }
+  .detalji div { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 6px; }
+  .detalji b { display: block; color: var(--gold); font-size: 1.05rem; }
+  .detalji small { display: block; color: var(--muted); font-size: 0.72rem; }
+  .detalji .pct { color: var(--text); font-size: 0.78rem; }
+  .red .detalji {
+    margin-top: 10px; padding: 0; gap: 6px;
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .red .detalji div { padding: 6px 2px; }
+  .red .detalji b { font-size: 0.95rem; }
+  .red .detalji small { font-size: 0.66rem; }
+  .red .detalji .pct { font-size: 0.7rem; }
+  .uputstvo { color: var(--muted); font-size: 0.85rem; margin: -4px 0 10px; }
+
   .prazno {
     background: var(--panel); border: 1px dashed var(--line); border-radius: 10px;
     padding: 28px 18px; text-align: center; color: var(--muted);
@@ -165,6 +191,7 @@
   </section>
 
   <h2>Sve utakmice</h2>
+  <p class="uputstvo" id="uputstvo" hidden>Klikni na utakmicu označenu sa ▸ za detaljnu statistiku.</p>
   <div id="utakmice"></div>
 </main>
 
@@ -176,7 +203,7 @@
 <script>
 // Podatke ovde upisuje aplikacija (jokic_app.py) svaki put kad se doda ili obriše utakmica.
 const PODACI = {
- "azurirano": "24.10.2026. u 08:03",
+ "azurirano": "24.10.2026. u 08:13",
  "statistika": {
   "pobede": 0,
   "porazi": 1,
@@ -241,6 +268,24 @@ document.getElementById("kartice").innerHTML = kartice.map(([v, n]) =>
   `<div class="kartica"><div class="vrednost">${v}</div><div class="naziv">${n}</div></div>`
 ).join("");
 
+
+function detaljiHtml(d) {
+  const pct = (a, b) => (b ? Math.round(100 * a / b) + "%" : "–");
+  const sut = (a, b, n) => `<div><b>${a}/${b}</b><span class="pct">${pct(a, b)}</span><small>${n}</small></div>`;
+  const broj = (x, n) => `<div><b>${x}</b><small>${n}</small></div>`;
+  const pm = d.plus_minus > 0 ? "+" + d.plus_minus : d.plus_minus;
+  return `<div class="detalji">
+    ${d.fga != null ? sut(d.fgm, d.fga, "Iz igre") : ""}
+    ${d.tpa != null ? sut(d.tpm, d.tpa, "Trojke") : ""}
+    ${d.fta != null ? sut(d.ftm, d.fta, "Slobodna") : ""}
+    ${d.ukradene != null ? broj(d.ukradene, "Ukradene") : ""}
+    ${d.blokade != null ? broj(d.blokade, "Blokade") : ""}
+    ${d.izgubljene != null ? broj(d.izgubljene, "Izgubljene") : ""}
+    ${d.faulovi != null ? broj(d.faulovi, "Faulovi") : ""}
+    ${d.plus_minus != null ? broj(pm, "+/-") : ""}
+  </div>`;
+}
+
 function znacka(u) {
   if (u.ucinak === "TD") return '<span class="znacka td">TRIPL-DABL</span>';
   if (u.ucinak === "DD") return '<span class="znacka dd">DABL-DABL</span>';
@@ -271,9 +316,9 @@ if (utakmice.length === 0) {
     </div>`;
 
   // Tabela: hronološki, prva utakmica na vrhu
-  const redovi = utakmice.map((u) => `
-    <tr>
-      <td class="br">${u.redni}</td>
+  const redovi = utakmice.map((u, i) => `
+    <tr class="${u.detalji ? "ima-detalje" : ""}" data-i="${i}">
+      <td class="br">${u.detalji ? '<span class="strelica"></span> ' : ""}${u.redni}</td>
       <td>${u.datum}</td>
       <td class="tim">${u.protivnik}</td>
       <td>${ishod(u)}</td>
@@ -282,14 +327,15 @@ if (utakmice.length === 0) {
       <td${dvocifren(u.skokovi)}>${u.skokovi}</td>
       <td>${u.minuti}</td>
       <td>${znacka(u)}</td>
-    </tr>`).join("");
+    </tr>
+    ${u.detalji ? `<tr class="detalji-red" id="d${i}" hidden><td colspan="9">${detaljiHtml(u.detalji)}</td></tr>` : ""}`).join("");
   // Ista lista za telefon: svaka utakmica u dva reda
   const b = (x) => `<b${dvocifren(x)}>${x}</b>`;
-  const listaRedovi = utakmice.map((u) => `
-    <div class="red">
+  const listaRedovi = utakmice.map((u, i) => `
+    <div class="red ${u.detalji ? "ima-detalje" : ""}" data-i="${i}">
       <div class="gore">
         <div><span class="meta">#${u.redni} · ${u.datum}</span><br><span class="tim">${u.protivnik}</span></div>
-        <div>${ishod(u)}</div>
+        <div>${ishod(u)} ${u.detalji ? '<span class="strelica"></span>' : ""}</div>
       </div>
       <div class="dole">
         <div>${b(u.poeni)} <span>PTS</span></div>
@@ -298,6 +344,7 @@ if (utakmice.length === 0) {
         <div>${u.minuti} <span>MIN</span></div>
         ${znacka(u)}
       </div>
+      ${u.detalji ? `<div class="m-detalji" id="m${i}" hidden>${detaljiHtml(u.detalji)}</div>` : ""}
     </div>`).join("");
 
   document.getElementById("utakmice").innerHTML = `
@@ -309,6 +356,18 @@ if (utakmice.length === 0) {
       <tbody>${redovi}</tbody>
     </table></div>
     <div class="lista">${listaRedovi}</div>`;
+
+  if (utakmice.some((u) => u.detalji)) document.getElementById("uputstvo").hidden = false;
+
+  // Klik na utakmicu otvara/zatvara njene detalje
+  document.querySelectorAll(".ima-detalje").forEach((el) => {
+    el.addEventListener("click", () => {
+      const i = el.dataset.i;
+      const d = document.getElementById((el.tagName === "TR" ? "d" : "m") + i);
+      d.hidden = !d.hidden;
+      el.classList.toggle("otvoren", !d.hidden);
+    });
+  });
 }
 </script>
 </body>
