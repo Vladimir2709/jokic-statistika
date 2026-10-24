@@ -20,7 +20,8 @@ def _ucinak(poeni, asistencije, skokovi):
     return {3: "TD", 2: "DD"}.get(kategorije, "")
 
 
-def pripremi_podatke(utakmice, statistika, datum_za_prikaz, ishod, rezultat_brojevi):
+def pripremi_podatke(utakmice, statistika, datum_za_prikaz, ishod, rezultat_brojevi,
+                     detalji_utakmice):
     """Pretvara redove iz baze u podatke koje stranica prikazuje."""
     lista = []
     for redni, u in enumerate(utakmice, start=1):
@@ -35,6 +36,9 @@ def pripremi_podatke(utakmice, statistika, datum_za_prikaz, ishod, rezultat_broj
             "ishod": ishod(u),
             "rezultat": rezultat_brojevi(u),  # npr. '121:118 OT'
             "ucinak": _ucinak(u[3], u[4], u[5]),
+            # Detaljna statistika (šut, ukradene, blokade...) ili None ako nije uneta.
+            # Za sada se ne prikazuje, ali je spremna za prikaz detalja na stranici.
+            "detalji": detalji_utakmice(u),
         })
     return {
         "azurirano": datetime.now().strftime("%d.%m.%Y. u %H:%M"),

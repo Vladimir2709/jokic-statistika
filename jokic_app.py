@@ -9,6 +9,10 @@ import web_stranica
 
 # ─── Baza podataka ───────────────────────────────────────────────────────────
 
+# Detaljna statistika (neobavezna): kolone u bazi, ovim redom
+DETALJI = ["fgm", "fga", "tpm", "tpa", "ftm", "fta",
+           "ukradene", "blokade", "izgubljene", "faulovi", "plus_minus"]
+
 def init_db():
     conn = sqlite3.connect("jokic_statistika.db")
     c = conn.cursor()
@@ -26,6 +30,7 @@ def init_db():
             produzeci INTEGER DEFAULT 0
         )
     """)
+    # Kolone za detaljnu statistiku — prazne (NULL) ako nisu unete
     # Starije baze nemaju novije kolone — dodajemo ih ako fale
     postojece = [red[1] for red in c.execute("PRAGMA table_info(utakmice)")]
     for kolona in ("rezultat_denver", "rezultat_protivnik"):
@@ -34,18 +39,25 @@ def init_db():
     if "produzeci" not in postojece:
         # Ranije unete utakmice dobijaju 0, tj. bez produžetka
         c.execute("ALTER TABLE utakmice ADD COLUMN produzeci INTEGER DEFAULT 0")
+    for kolona in DETALJI:
+        if kolona not in postojece:
+            c.execute(f"ALTER TABLE utakmice ADD COLUMN {kolona} INTEGER")
     conn.commit()
     conn.close()
 
 def dodaj_utakmicu(datum, protivnik, poeni, asistencije, skokovi, minuti,
-                   rezultat_denver=None, rezultat_protivnik=None, produzeci=0):
+                   rezultat_denver=None, rezultat_protivnik=None, produzeci=0,
+                   detalji=None):
+    """detalji: rečnik sa ključevima iz DETALJI; šta fali, upisuje se kao prazno."""
+    detalji = detalji or {}
     conn = sqlite3.connect("jokic_statistika.db")
     c = conn.cursor()
-    c.execute("""INSERT INTO utakmice (datum, protivnik, poeni, asistencije, skokovi, minuti,
-                                       rezultat_denver, rezultat_protivnik, produzeci)
-                 VALUES (?,?,?,?,?,?,?,?,?)""",
-              (datum, protivnik, poeni, asistencije, skokovi, minuti,
-               rezultat_denver, rezultat_protivnik, produzeci))
+    kolone = ["datum", "protivnik", "poeni", "asistencije", "skokovi", "minuti",
+              "rezultat_denver", "rezultat_protivnik", "produzeci"] + DETALJI
+    vrednosti = [datum, protivnik, poeni, asistencije, skokovi, minuti,
+                 rezultat_denver, rezultat_protivnik, produzeci] + [detalji.get(k) for k in DETALJI]
+    upitnici = ",".join("?" * len(kolone))
+    c.execute(f"INSERT INTO utakmice ({', '.join(kolone)}) VALUES ({upitnici})", vrednosti)
     conn.commit()
     conn.close()
 
@@ -54,7 +66,8 @@ def ucitaj_utakmice():
     c = conn.cursor()
     # Kolone navodimo po imenu, da redosled ne zavisi od toga kada su dodate
     c.execute("""SELECT id, datum, protivnik, poeni, asistencije, skokovi, minuti,
-                        rezultat_denver, rezultat_protivnik, produzeci
+                        rezultat_denver, rezultat_protivnik, produzeci, """ +
+              ", ".join(DETALJI) + """
                  FROM utakmice ORDER BY datum, id""")
     podaci = c.fetchall()
     conn.close()
@@ -89,6 +102,12 @@ def rezultat_brojevi(u):
         return ""
     ot = oznaka_produzetka(u[9])
     return f"{u[7]}:{u[8]}" + (f" {ot}" if ot else "")
+
+def detalji_utakmice(u):
+    """Rečnik detaljne statistike (posle kolone produzeci, u[10]...),
+    ili None ako za utakmicu nije uneto ništa od detalja."""
+    d = dict(zip(DETALJI, u[10:10 + len(DETALJI)]))
+    return d if any(x is not None for x in d.values()) else None
 
 def rezultat_tekst(u):
     """Tekst za tabelu, npr. 'W 112:105' ili 'W 121:118 OT'."""
@@ -139,12 +158,21 @@ OPSEZI = {
     "asistencije": (0, 50),
     "skokovi": (0, 50),
     "minuti": (0, 70),
+    # detaljna statistika
+    "fgm": (0, 40), "fga": (0, 50),
+    "tpm": (0, 20), "tpa": (0, 30),
+    "ftm": (0, 30), "fta": (0, 35),
+    "ukradene": (0, 15), "blokade": (0, 15), "izgubljene": (0, 15),
+    "faulovi": (0, 6),          # sa 6 faulova igrač napušta utakmicu
+    "plus_minus": (-70, 70),
 }
 
 def proveri_polje(kljuc, tekst):
     """Proverava jedno polje. Vraća vrednost spremnu za bazu ili baca ValueError
     sa kratkom porukom koja se prikazuje pored polja."""
     tekst = tekst.strip()
+    if not tekst and kljuc in DETALJI:
+        return None  # detaljna statistika nije obavezna
     if not tekst:
         raise ValueError("Obavezno polje")
     if kljuc == "datum":
@@ -183,6 +211,24 @@ def proveri_utakmicu(v):
             greske["minuti"] = "Više od 48 min bez produžetka"
         else:
             greske["minuti"] = f"Najviše {najvise} min uz {oznaka_produzetka(v['produzeci'])}"
+
+    # Šut: pogođeno ne može biti više od pokušanog, a uneta moraju biti oba broja
+    for pog, pok in (("fgm", "fga"), ("tpm", "tpa"), ("ftm", "fta")):
+        if (v.get(pog) is None) != (v.get(pok) is None):
+            prazno = pog if v.get(pog) is None else pok
+            greske[prazno] = "Upiši oba broja"
+        elif v.get(pog) is not None and v[pog] > v[pok]:
+            greske[pog] = "Pogođeno > pokušano"
+    # Trojke su deo šuta iz igre
+    if v.get("tpm") is not None and v.get("fgm") is not None and v["tpm"] > v["fgm"]:
+        greske["tpm"] = "Više trojki nego šuta iz igre"
+    if v.get("tpa") is not None and v.get("fga") is not None and v["tpa"] > v["fga"]:
+        greske["tpa"] = "Više pokušaja za 3 nego ukupno"
+    # Ako je unet sav šut, mora da se slaže sa poenima: 2 × iz igre + trojke + slobodna
+    if all(v.get(k) is not None for k in ("fgm", "tpm", "ftm")) and "poeni" not in greske:
+        iz_suta = 2 * v["fgm"] + v["tpm"] + v["ftm"]
+        if iz_suta != v["poeni"]:
+            greske["poeni"] = f"Šut daje {iz_suta} poena"
     return greske
 
 def izracunaj_statistiku():
@@ -229,7 +275,7 @@ def osvezi_web_stranicu():
     try:
         podaci = web_stranica.pripremi_podatke(
             ucitaj_utakmice(), izracunaj_statistiku() or PRAZNA_STATISTIKA,
-            datum_za_prikaz, ishod, rezultat_brojevi)
+            datum_za_prikaz, ishod, rezultat_brojevi, detalji_utakmice)
         web_stranica.napravi_stranicu(podaci)
     except Exception as greska:
         # Unos utakmica radi i ako stranica ne može da se napravi
@@ -384,6 +430,45 @@ class JokicApp(tk.Tk):
             else:
                 # Čim korisnik počne da ispravlja, greška nestaje
                 e.bind("<Key>", lambda event, k=key: self._ocisti_gresku(k))
+
+        # Detaljna statistika — neobavezna, unosi se kad je podatak poznat
+        tk.Label(frame, text="Detaljno (neobavezno) — šut: pogođeno / pokušano",
+                 font=("Helvetica", 9, "bold"), anchor="w",
+                 bg=self.panel, fg=self.gold).pack(fill="x", pady=(10, 2))
+        detaljni_redovi = [("Šut iz igre:", ("fgm", "fga")),
+                           ("Trojke:", ("tpm", "tpa")),
+                           ("Slobodna bacanja:", ("ftm", "fta")),
+                           ("Ukradene lopte:", ("ukradene",)),
+                           ("Blokade:", ("blokade",)),
+                           ("Izgubljene lopte:", ("izgubljene",)),
+                           ("Faulovi:", ("faulovi",)),
+                           ("+/-:", ("plus_minus",))]
+        for label, kljucevi in detaljni_redovi:
+            row = tk.Frame(frame, bg=self.panel)
+            row.pack(fill="x", pady=1)
+            tk.Label(row, text=label, width=24, anchor="w",
+                     font=("Helvetica", 10), bg=self.panel, fg=self.text).pack(side="left")
+            # Dva polja u redu (pogođeno / pokušano) dele istu poruku o grešci
+            sirina = 5 if len(kljucevi) == 2 else 14
+            polja_u_redu = []
+            for i, key in enumerate(kljucevi):
+                if i == 1:
+                    tk.Label(row, text="/", font=("Helvetica", 10, "bold"),
+                             bg=self.panel, fg=self.muted).pack(side="left")
+                e = tk.Entry(row, bg=self.entry_bg, fg=self.text, insertbackground=self.text,
+                             font=("Helvetica", 10), relief="flat", bd=4, width=sirina,
+                             highlightthickness=1, highlightbackground=self.entry_bg,
+                             highlightcolor=self.entry_bg)
+                e.pack(side="left", padx=4)
+                e.bind("<Return>", lambda event, k=key: self._enter(k))
+                e.bind("<Key>", lambda event, k=key: self._ocisti_gresku(k))
+                self.entries[key] = e
+                polja_u_redu.append(key)
+            greska = tk.Label(row, text="", font=("Helvetica", 9), anchor="w",
+                              bg=self.panel, fg=self.crvena)
+            greska.pack(side="left", padx=(4, 0))
+            for key in polja_u_redu:
+                self.greske[key] = greska
 
         tk.Button(frame, text="➕  Dodaj utakmicu", font=("Helvetica", 11, "bold"),
                   bg=self.gold, fg="#1a1a2e", activebackground="#c9a200",
@@ -562,7 +647,7 @@ class JokicApp(tk.Tk):
 
         dodaj_utakmicu(v["datum"], v["protivnik"], v["poeni"], v["asistencije"],
                        v["skokovi"], v["minuti"], v["rezultat_denver"], v["rezultat_protivnik"],
-                       v["produzeci"])
+                       v["produzeci"], {k: v[k] for k in DETALJI})
         for kljuc, e in self.entries.items():
             if kljuc == "produzeci":
                 e.set(PRODUZECI[0])
