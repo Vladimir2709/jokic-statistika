@@ -144,6 +144,7 @@
   .red .detalji div { padding: 6px 2px; }
   .red .detalji b { font-size: 0.95rem; }
   .red .detalji small { font-size: 0.66rem; }
+  .red .detalji small { line-height: 1.2; margin-top: 2px; }
   .red .detalji .pct { font-size: 0.7rem; }
   .uputstvo { color: var(--muted); font-size: 0.85rem; margin: -4px 0 10px; }
 
@@ -249,7 +250,7 @@
 <script>
 // Podatke ovde upisuje aplikacija (jokic_app.py) svaki put kad se doda ili obriše utakmica.
 const PODACI = {
- "azurirano": "25.10.2026. u 04:12",
+ "azurirano": "25.10.2026. u 04:24",
  "statistika": {
   "pobede": 0,
   "porazi": 1,
@@ -512,12 +513,12 @@ function detaljiHtml(d) {
   const broj = (x, n) => `<div><b>${x}</b><small>${n}</small></div>`;
   const pm = d.plus_minus > 0 ? "+" + d.plus_minus : d.plus_minus;
   return `<div class="detalji">
-    ${d.fga != null ? sut(d.fgm, d.fga, "Iz igre") : ""}
+    ${d.fga != null ? sut(d.fgm, d.fga, "Šut iz igre") : ""}
     ${d.tpa != null ? sut(d.tpm, d.tpa, "Trojke") : ""}
-    ${d.fta != null ? sut(d.ftm, d.fta, "Slobodna") : ""}
-    ${d.ukradene != null ? broj(d.ukradene, "Ukradene") : ""}
+    ${d.fta != null ? sut(d.ftm, d.fta, "Slobodna bacanja") : ""}
+    ${d.ukradene != null ? broj(d.ukradene, "Ukradene lopte") : ""}
     ${d.blokade != null ? broj(d.blokade, "Blokade") : ""}
-    ${d.izgubljene != null ? broj(d.izgubljene, "Izgubljene") : ""}
+    ${d.izgubljene != null ? broj(d.izgubljene, "Izgubljene lopte") : ""}
     ${d.faulovi != null ? broj(d.faulovi, "Faulovi") : ""}
     ${d.plus_minus != null ? broj(pm, "+/-") : ""}
   </div>`;
