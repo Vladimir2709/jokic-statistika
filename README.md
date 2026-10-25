@@ -64,6 +64,11 @@ Moji podaci sa sezone nisu deo repozitorijuma, pa kod sebe kreneš od nule.
 - [ ] Tip utakmice: regularna sezona / plej-of
 - [ ] Izmena već unete utakmice
 
+## Napomena
+
+Nezvanična stranica navijača. Nije povezana sa Nikolom Jokićem, klubom Denver Nuggets
+niti NBA ligom, niti je oni podržavaju. Statistika je prikupljena iz javno dostupnih izvora.
+
 ## Feedback
 
 Imaš ideju šta bi bilo zanimljivo pratiti, ili si našao grešku?
