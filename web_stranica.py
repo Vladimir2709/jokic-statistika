@@ -48,6 +48,10 @@ PREKRETNICE = [
      "naziv": "10.000 skokova u karijeri",
      "opis": "Regularni deo sezone",
      "slavlje": "Nikola Jokić je prešao 10.000 skokova u karijeri!"},
+    {"id": "asistencije-7000", "kljuc": "asistencije", "cilj": 7000,
+     "naziv": "7.000 asistencija u karijeri",
+     "opis": "Regularni deo sezone",
+     "slavlje": "Nikola Jokić je prešao 7.000 asistencija u karijeri!"},
 ]
 
 

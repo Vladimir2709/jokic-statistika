@@ -320,11 +320,6 @@
   <h2>Statistika sezone</h2>
   <div class="kartice" id="kartice"></div>
 
-  <section id="rekord-sekcija" hidden>
-    <h2>U lovu na rekord</h2>
-    <div class="prekretnice" id="prekretnice"></div>
-  </section>
-
   <section id="poslednja-sekcija" hidden>
     <h2>Poslednja utakmica</h2>
     <div class="poslednja" id="poslednja"></div>
@@ -333,6 +328,11 @@
   <h2>Sve utakmice</h2>
   <p class="uputstvo" id="uputstvo" hidden>Klikni na utakmicu označenu sa ▸ za detaljnu statistiku.</p>
   <div id="utakmice"></div>
+
+  <section id="rekord-sekcija" hidden>
+    <h2>U lovu na rekord</h2>
+    <div class="prekretnice" id="prekretnice"></div>
+  </section>
 </main>
 
 <footer>
@@ -568,7 +568,7 @@ document.getElementById("prekretnice").innerHTML = prekretnice.map((p) => {
   } else if (p.kljuc === "td" && p.trenutno === p.cilj - 1) {
     dole = `<span class="jos"><b>Rekord izjednačen!</b> Još <b>1</b> tripl-dabl do novog rekorda.</span>`;
   } else {
-    const jedinica = p.kljuc === "td" ? "tripl-dablova" : p.kljuc === "poeni" ? "poena" : "skokova";
+    const jedinica = { td: "tripl-dablova", poeni: "poena", skokovi: "skokova", asistencije: "asistencija" }[p.kljuc];
     dole = `<span class="jos">Još <b>${broj(fali)}</b> ${jedinica} · ove sezone: ${broj(ovaSezona)}</span>`;
   }
   return `<div class="prekretnica ${p.kljuc === "td" ? "glavna" : ""}">
