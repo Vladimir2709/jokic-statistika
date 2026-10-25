@@ -177,7 +177,7 @@
   .mesto-oznaka { color: var(--muted); font-weight: 600; margin-right: 3px; }
 
 
-  /* U lovu na rekord */
+  /* Dostignuća u karijeri */
   .prekretnice { display: grid; gap: 10px; }
   .prekretnica {
     background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px;
@@ -330,7 +330,7 @@
   <div id="utakmice"></div>
 
   <section id="rekord-sekcija" hidden>
-    <h2>U lovu na rekord</h2>
+    <h2>Dostignuća u karijeri</h2>
     <div class="prekretnice" id="prekretnice"></div>
   </section>
 </main>
@@ -347,7 +347,7 @@
 <script>
 // Podatke ovde upisuje aplikacija (jokic_app.py) svaki put kad se doda ili obriše utakmica.
 const PODACI = {
- "azurirano": "25.10.2026. u 06:35",
+ "azurirano": "25.10.2026. u 06:43",
  "statistika": {
   "pobede": 0,
   "porazi": 1,
@@ -793,7 +793,7 @@ if (utakmice.length === 0) {
   });
 }
 
-// ── U lovu na rekord ──
+// ── Dostignuća u karijeri ──
 // Večna lista tripl-dablova sa Jokićem na njegovom trenutnom mestu
 // Zlatna zvezda (SVG), sa prelivom kao medalja
 const ZVEZDA = `<svg class="zvezda-svg" viewBox="0 0 24 24" aria-hidden="true">
