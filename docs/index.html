@@ -176,6 +176,93 @@
   .napomena-vreme { color: var(--muted); font-size: 0.78rem; margin: 6px 0 0; }
   .mesto-oznaka { color: var(--muted); font-weight: 600; margin-right: 3px; }
 
+
+  /* U lovu na rekord */
+  .prekretnice { display: grid; gap: 10px; }
+  .prekretnica {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px;
+  }
+  .prekretnica.glavna { border-color: rgba(226, 183, 20, 0.45); }
+  .prekretnica .gore { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .prekretnica h3 { margin: 0; font-size: 1rem; }
+  .prekretnica .opis { color: var(--muted); font-size: 0.8rem; }
+  .prekretnica .stanje { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .prekretnica .stanje b { color: var(--gold); font-size: 1.5rem; }
+  .prekretnica .stanje span { color: var(--muted); }
+  .traka { height: 10px; background: var(--bg); border-radius: 999px; overflow: hidden; margin: 10px 0 6px; }
+  .traka div { height: 100%; background: linear-gradient(90deg, #c9a200, var(--gold)); border-radius: 999px; }
+  .tackice { display: flex; gap: 5px; margin: 10px 0 6px; flex-wrap: wrap; }
+  .tackice i {
+    flex: 1 1 0; min-width: 14px; height: 14px; border-radius: 4px;
+    background: var(--bg); border: 1px solid var(--line);
+  }
+  .tackice i.puna { background: var(--gold); border-color: var(--gold); }
+  .tackice i.rekord { border-color: var(--gold); }
+  .prekretnica .jos { color: var(--muted); font-size: 0.85rem; }
+  .prekretnica .jos b { color: var(--text); }
+  .postignuto { color: var(--win); font-weight: 700; font-size: 0.9rem; }
+
+  /* Slavlje */
+  /* Slojevi: zatamnjenje (50) → konfete (51) → prozor sa čestitkom (52) */
+  .slavlje-pozadina { position: fixed; inset: 0; z-index: 50; background: rgba(10, 10, 25, 0.72); }
+  .slavlje {
+    position: fixed; inset: 0; z-index: 52; display: flex; align-items: center; justify-content: center;
+    padding: 16px;
+  }
+  .slavlje > div {
+    background: var(--panel); border: 2px solid var(--gold); border-radius: 14px;
+    max-width: 520px; padding: 26px 22px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  }
+  .slavlje .veliko { font-size: 2rem; font-weight: 900; color: var(--gold); letter-spacing: 0.04em; }
+  .slavlje p { font-size: 1.15rem; margin: 10px 0 18px; }
+  .slavlje small { display: block; color: var(--muted); margin-bottom: 16px; }
+  .slavlje button {
+    background: var(--gold); color: var(--bg); border: 0; border-radius: 8px;
+    font-weight: 800; font-size: 1rem; padding: 10px 22px; cursor: pointer;
+  }
+
+
+  /* Večna lista tripl-dablova */
+  .lista-td { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 10px; }
+  .lista-td .naslov { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+  .lista-td ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; }
+  .lista-td li { display: flex; gap: 10px; align-items: baseline; font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+  .lista-td li .mesto { color: var(--muted); width: 1.6em; text-align: right; }
+  .lista-td li .ime { flex: 1; }
+  .lista-td li .br { color: var(--muted); }
+  .lista-td li.jokic { color: var(--gold); font-weight: 800; }
+  .lista-td li.jokic .br, .lista-td li.jokic .mesto { color: var(--gold); }
+  .lista-td .fusnota { color: var(--muted); font-size: 0.72rem; margin-top: 6px; }
+  .lista-td .razlika { color: var(--win); font-size: 0.8rem; margin-left: 6px; font-weight: 600; }
+  .slavlje .prvi { color: var(--gold); font-weight: 800; font-size: 1.05rem; margin: -6px 0 12px; }
+  .slavlje .lista-td { text-align: left; max-width: 300px; margin: 0 auto 18px; }
+
+
+  /* Zlatna zvezda rekordera */
+  .zvezda-svg { width: 1em; height: 1em; vertical-align: -0.12em; filter: drop-shadow(0 0 4px rgba(254, 197, 36, 0.7)); }
+  .zvezda-mesto { display: inline-block; width: 1.15em; height: 1em; margin-left: 6px; vertical-align: -0.12em; }
+  .leteca-zvezda { position: fixed; z-index: 53; pointer-events: none; transform-origin: center; will-change: transform; }
+  .leteca-zvezda .zvezda-svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 0 10px rgba(254, 197, 36, 0.9)); }
+  @keyframes udarac { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+  .slavlje > div.udarac { animation: udarac 0.35s ease-out; }
+
+
+  /* Ruka koja pokazuje na dugme i dugme koje vibrira — pozivaju na klik */
+  .dugme-red { display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .ruka { font-size: 1.9rem; line-height: 1; opacity: 0; transition: opacity 0.3s; }
+  .poziv .ruka { opacity: 1; animation: pokazi 0.9s ease-in-out infinite; }
+  @keyframes pokazi { 0%, 100% { transform: translateX(-6px); } 50% { transform: translateX(6px); } }
+  .poziv .dugme-red button { animation: vibriraj 1.6s ease-in-out infinite; }
+  @keyframes vibriraj {
+    0%, 55%, 100% { transform: translateX(0) rotate(0); }
+    60% { transform: translateX(-3px) rotate(-3deg); }
+    65% { transform: translateX(3px) rotate(3deg); }
+    70% { transform: translateX(-3px) rotate(-2deg); }
+    75% { transform: translateX(3px) rotate(2deg); }
+    80% { transform: translateX(-2px) rotate(-1deg); }
+    85% { transform: translateX(0) rotate(0); }
+  }
+
   .prazno {
     background: var(--panel); border: 1px dashed var(--line); border-radius: 10px;
     padding: 28px 18px; text-align: center; color: var(--muted);
@@ -203,6 +290,8 @@
     th, td { padding: 9px 8px; }
   }
 </style>
+<!-- Konfete za proslavu prekretnica -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js" defer></script>
 </head>
 <body>
 <header>
@@ -228,6 +317,11 @@
   <h2>Statistika sezone</h2>
   <div class="kartice" id="kartice"></div>
 
+  <section id="rekord-sekcija" hidden>
+    <h2>U lovu na rekord</h2>
+    <div class="prekretnice" id="prekretnice"></div>
+  </section>
+
   <section id="poslednja-sekcija" hidden>
     <h2>Poslednja utakmica</h2>
     <div class="poslednja" id="poslednja"></div>
@@ -250,7 +344,7 @@
 <script>
 // Podatke ovde upisuje aplikacija (jokic_app.py) svaki put kad se doda ili obriše utakmica.
 const PODACI = {
- "azurirano": "25.10.2026. u 04:24",
+ "azurirano": "25.10.2026. u 05:31",
  "statistika": {
   "pobede": 0,
   "porazi": 1,
@@ -426,6 +520,83 @@ const PODACI = {
    "protivnik": "Detroit Pistons",
    "mesto": "G",
    "napomena": ""
+  }
+ ],
+ "prekretnice": [
+  {
+   "id": "td-rekord",
+   "kljuc": "td",
+   "cilj": 210,
+   "naziv": "Rekord NBA po broju tripl-dablova",
+   "opis": "Dosadašnji rekord: Russell Westbrook, 209",
+   "slavlje": "Nikola Jokić je novi rekorder NBA po broju tripl-dablova!",
+   "pocetak": 198,
+   "trenutno": 198,
+   "postignuto": null
+  },
+  {
+   "id": "poeni-20000",
+   "kljuc": "poeni",
+   "cilj": 20000,
+   "naziv": "20.000 poena u karijeri",
+   "opis": "Regularni deo sezone",
+   "slavlje": "Nikola Jokić je prešao 20.000 poena u karijeri!",
+   "pocetak": 18009,
+   "trenutno": 18022,
+   "postignuto": null
+  },
+  {
+   "id": "skokovi-10000",
+   "kljuc": "skokovi",
+   "cilj": 10000,
+   "naziv": "10.000 skokova u karijeri",
+   "opis": "Regularni deo sezone",
+   "slavlje": "Nikola Jokić je prešao 10.000 skokova u karijeri!",
+   "pocetak": 8977,
+   "trenutno": 8984,
+   "postignuto": null
+  }
+ ],
+ "vecna_lista_td": [
+  {
+   "ime": "Russell Westbrook",
+   "td": 209
+  },
+  {
+   "ime": "Oscar Robertson",
+   "td": 181
+  },
+  {
+   "ime": "Magic Johnson",
+   "td": 138
+  },
+  {
+   "ime": "LeBron James",
+   "td": 125,
+   "aktivan": true
+  },
+  {
+   "ime": "Jason Kidd",
+   "td": 107
+  },
+  {
+   "ime": "Luka Dončić",
+   "td": 90,
+   "aktivan": true
+  },
+  {
+   "ime": "James Harden",
+   "td": 82,
+   "aktivan": true
+  },
+  {
+   "ime": "Wilt Chamberlain",
+   "td": 78
+  },
+  {
+   "ime": "Domantas Sabonis",
+   "td": 68,
+   "aktivan": true
   }
  ]
 };
@@ -607,6 +778,193 @@ if (utakmice.length === 0) {
     });
   });
 }
+
+// ── U lovu na rekord ──
+// Večna lista tripl-dablova sa Jokićem na njegovom trenutnom mestu
+// Zlatna zvezda (SVG), sa prelivom kao medalja
+const ZVEZDA = `<svg class="zvezda-svg" viewBox="0 0 24 24" aria-hidden="true">
+  <defs><linearGradient id="zlato" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#fff2a8"/><stop offset="0.45" stop-color="#fec524"/><stop offset="1" stop-color="#c98a00"/>
+  </linearGradient></defs>
+  <path fill="url(#zlato)" stroke="#8a5d00" stroke-width="0.6"
+    d="M12 1.8l3.1 6.6 7.2.9-5.3 5 1.4 7.1L12 17.9l-6.4 3.5L7 14.3 1.7 9.3l7.2-.9z"/></svg>`;
+
+// zvezda: "" (bez zvezde), "stalna" (zvezda pored imena) ili "mesto" (prazno mesto u koje zvezda doleće)
+function vecnaLista(jokicTd, koliko, saRazlikom = true, zvezda = "") {
+  const lista = [...(PODACI.vecna_lista_td || []), { ime: "Nikola Jokić", td: jokicTd, jokic: true }]
+    .sort((a, b) => b.td - a.td || (a.jokic ? -1 : 1)).slice(0, koliko);
+  const drugi = saRazlikom && lista[0].jokic && lista[1] ? lista[0].td - lista[1].td : 0;
+  return `<div class="lista-td"><div class="naslov">Večna lista tripl-dablova (NBA)</div><ol>` +
+    lista.map((x, i) => `<li class="${x.jokic ? "jokic" : ""}"><span class="mesto">${i + 1}.</span>
+      <span class="ime">${x.ime}${x.jokic && zvezda === "stalna" ? ` ${ZVEZDA}` : ""}${x.jokic && zvezda === "mesto" ? '<span class="zvezda-mesto"></span>' : ""}${x.jokic && drugi > 0 ? `<span class="razlika">+${drugi} ispred ${lista[1].ime.split(" ").pop()}a</span>` : ""}</span>
+      <span class="br">${x.td}${x.aktivan ? "*" : ""}</span></li>`).join("") + "</ol>" +
+    (lista.some((x) => x.aktivan) ? '<div class="fusnota">* još igra — stanje pre sezone 2026/27</div>' : "") + "</div>";
+}
+const broj = (x) => x.toLocaleString("sr-Latn-RS");
+const prekretnice = PODACI.prekretnice || [];
+document.getElementById("prekretnice").innerHTML = prekretnice.map((p) => {
+  const ukupno = p.cilj - p.pocetak, ovaSezona = p.trenutno - p.pocetak;
+  let napredak;
+  if (p.kljuc === "td") {
+    // Tačkica za svaki tripl-dabl koji fali do rekorda (od početka sezone)
+    napredak = '<div class="tackice">' + Array.from({ length: ukupno }, (_, i) =>
+      `<i class="${i < ovaSezona ? "puna" : ""} ${i === ukupno - 1 ? "rekord" : ""}" title="${p.pocetak + i + 1}."></i>`
+    ).join("") + "</div>";
+  } else {
+    const pct = Math.max(0, Math.min(100, (100 * ovaSezona) / ukupno));
+    napredak = `<div class="traka"><div style="width:${pct}%"></div></div>`;
+  }
+  const fali = p.cilj - p.trenutno;
+  let dole;
+  if (p.postignuto) {
+    dole = `<span class="postignuto">✅ Postignuto u utakmici #${p.postignuto.redni} (${p.postignuto.datum}, protiv ${p.postignuto.protivnik})</span>`;
+  } else if (p.kljuc === "td" && p.trenutno === p.cilj - 1) {
+    dole = `<span class="jos"><b>Rekord izjednačen!</b> Još <b>1</b> tripl-dabl do novog rekorda.</span>`;
+  } else {
+    const jedinica = p.kljuc === "td" ? "tripl-dablova" : p.kljuc === "poeni" ? "poena" : "skokova";
+    dole = `<span class="jos">Još <b>${broj(fali)}</b> ${jedinica} · ove sezone: ${broj(ovaSezona)}</span>`;
+  }
+  return `<div class="prekretnica ${p.kljuc === "td" ? "glavna" : ""}">
+    <div class="gore">
+      <div><h3>${p.naziv}</h3><div class="opis">${p.opis}</div></div>
+      <div class="stanje"><b>${broj(p.trenutno)}</b> <span>/ ${broj(p.cilj)}</span></div>
+    </div>
+    ${napredak}
+    ${dole}
+    ${p.kljuc === "td" ? vecnaLista(p.trenutno, 10, true, p.postignuto ? "stalna" : "") : ""}
+  </div>`;
+}).join("");
+if (prekretnice.length) document.getElementById("rekord-sekcija").hidden = false;
+
+// Slavlje: ako je prekretnica dostignuta u poslednjih 7 dana, svaki posetilac
+// jednom vidi vatromet i čestitku (pamti se u browseru posetioca)
+function vidjeno(id, oznaci) {
+  try {
+    if (oznaci) localStorage.setItem("slavlje-" + id, "1");
+    return localStorage.getItem("slavlje-" + id) === "1";
+  } catch (e) { return false; }
+}
+function slavi(p) {
+  const el = document.createElement("div");
+  el.className = "slavlje";
+  el.innerHTML = `<div>
+    <div class="veliko">🎆 ISTORIJA!!! 🎆</div>
+    <p>${p.slavlje}</p>
+    ${p.kljuc === "td" ? `<div class="prvi">🥇 Broj 1 na večnoj listi — sam na vrhu istorije NBA</div>${vecnaLista(p.trenutno, 5, false, "mesto")}` : ""}
+    <small>Utakmica #${p.postignuto.redni} · ${p.postignuto.datum} · protiv ${p.postignuto.protivnik}</small>
+    <div class="dugme-red"><span class="ruka" aria-hidden="true">👉</span><button type="button">Bravo, Joker! 🏀</button></div>
+  </div>`;
+  const pozadina = document.createElement("div");
+  pozadina.className = "slavlje-pozadina";
+  document.body.append(pozadina, el);
+  vidjeno(p.id, true);
+  // Vatromet traje dok posetilac ne klikne „Bravo, Joker!“
+  let zaustavi = () => {};
+  let zvezdaAnimacija = null;
+  el.querySelector("button").addEventListener("click", () => {
+    if (zvezdaAnimacija) zvezdaAnimacija.cancel();
+    zaustavi();
+    el.remove();
+    pozadina.remove();
+  });
+  const mesto = el.querySelector(".zvezda-mesto");
+  if (!mesto) { zaustavi = vatromet(); el.classList.add("poziv"); return; }
+  // Kod rekorda: prvo zvezda doleti i zakuca se pored Jokićevog imena, pa tek onda vatromet
+  zvezdaAnimacija = zvezdaDoleti(mesto, () => {
+    zvezdaAnimacija = null;
+    el.firstElementChild.classList.add("udarac");  // prozor se malo „trgne“ od udarca
+    el.classList.add("poziv");                      // ruka pokazuje, dugme vibrira
+    zaustavi = vatromet();
+  });
+}
+
+// Velika zlatna zvezda se pojavi u sredini ekrana, odskakuće, pa poleti i zakuca se u `mesto`
+function zvezdaDoleti(mesto, kadSeZakuca) {
+  const cilj = mesto.getBoundingClientRect();
+  const velicina = cilj.height * 1.1;
+  const z = document.createElement("div");
+  z.className = "leteca-zvezda";
+  z.innerHTML = ZVEZDA;
+  Object.assign(z.style, { width: velicina + "px", height: velicina + "px",
+    left: cilj.left + "px", top: cilj.top + (cilj.height - velicina) / 2 + "px" });
+  document.body.appendChild(z);
+  // Pomak od ciljnog mesta do sredine ekrana
+  const dx = innerWidth / 2 - (cilj.left + velicina / 2);
+  const dy = innerHeight * 0.42 - (cilj.top + cilj.height / 2);
+  const veliko = Math.min(innerWidth, innerHeight) * 0.38 / velicina;  // krupan plan
+  const u = (x, y, s, r = 0) => `translate(${x}px, ${y}px) scale(${s}) rotate(${r}deg)`;
+  const skok = veliko * velicina * 0.35;
+  const anim = z.animate([
+    { transform: u(dx, dy, 0, -40), opacity: 0, offset: 0 },
+    { transform: u(dx, dy, veliko * 1.1, 8), opacity: 1, offset: 0.14, easing: "ease-out" },
+    { transform: u(dx, dy, veliko, 0), offset: 0.22 },
+    { transform: u(dx, dy, veliko, 0), offset: 0.34, easing: "ease-out" },           // zadrži se u krupnom planu
+    { transform: u(dx, dy - skok, veliko * 0.92, 0), offset: 0.44, easing: "ease-in" }, // odskok
+    { transform: u(dx, dy, veliko * 0.95, 0), offset: 0.52, easing: "ease-out" },
+    { transform: u(dx, dy - skok * 0.45, veliko * 0.88, 0), offset: 0.59, easing: "ease-in" }, // manji odskok
+    { transform: u(dx, dy, veliko * 0.9, 0), offset: 0.65, easing: "cubic-bezier(.5,0,.75,0)" },
+    { transform: u(0, -velicina * 1.5, 1.6, 360), offset: 0.88, easing: "ease-in" },  // let ka imenu uz okret
+    { transform: u(0, 0, 0.75, 360), offset: 0.94, easing: "ease-out" },             // zakucavanje
+    { transform: u(0, 0, 1, 360), offset: 1 },
+  ], { duration: 3200, fill: "forwards" });
+  anim.onfinish = () => {
+    mesto.innerHTML = ZVEZDA;  // zvezda ostaje pored imena
+    z.remove();
+    kadSeZakuca();
+  };
+  anim.oncancel = () => z.remove();
+  return anim;
+}
+
+// Vatromet u bojama Denvera: veliki prasak, „topovi“ sa strane i eksplozije po ekranu.
+// Traje dok se ne pozove funkcija koju vraća (zaustavljanje).
+function vatromet() {
+  if (typeof confetti !== "function") return () => {};  // biblioteka nije učitana — samo čestitka
+  const boje = ["#fec524", "#e2b714", "#ffffff", "#0e2240", "#8b2131", "#1d428a"];
+  // zIndex 51: konfete lete iznad zatamnjenja, a ispod prozora sa čestitkom (52)
+  const iznad = { zIndex: 51, colors: boje };
+  const slucajno = (od, do_) => Math.random() * (do_ - od) + od;
+  let radi = true;
+
+  // 1. Veliki prasak: dve snažne eksplozije, levo i desno od prozora sa čestitkom
+  for (const x of [0.12, 0.88]) {
+    confetti({ ...iznad, particleCount: 150, spread: 120, startVelocity: 60, origin: { x, y: 0.55 }, scalar: 1.2,
+               shapes: ["star", "circle", "square"] });
+  }
+
+  // 2. Topovi sa leve i desne strane
+  let frejm = 0;
+  (function topovi() {
+    if (!radi) return;
+    if (frejm++ % 3 === 0) {  // svaki treći frejm, da ne optereti slabije telefone
+      confetti({ ...iznad, particleCount: 5, angle: 60, spread: 55, startVelocity: 60, origin: { x: 0, y: 0.75 } });
+      confetti({ ...iznad, particleCount: 5, angle: 120, spread: 55, startVelocity: 60, origin: { x: 1, y: 0.75 } });
+    }
+    requestAnimationFrame(topovi);
+  })();
+
+  // 3. Eksplozije vatrometa na nasumičnim mestima, sa zvezdicama
+  const zajedno = { ...iznad, spread: 360, startVelocity: 32, ticks: 80, gravity: 0.9, shapes: ["star", "circle"] };
+  const eksplozije = setInterval(() => {
+    confetti({ ...zajedno, particleCount: 60, origin: { x: slucajno(0.1, 0.35), y: slucajno(0.1, 0.4) } });
+    confetti({ ...zajedno, particleCount: 60, origin: { x: slucajno(0.65, 0.9), y: slucajno(0.1, 0.4) } });
+  }, 450);
+
+  return () => {
+    radi = false;
+    clearInterval(eksplozije);
+    confetti.reset();  // uklanja preostale konfete sa ekrana
+  };
+}
+window.addEventListener("load", () => {
+  const danas = Date.now();
+  for (const p of prekretnice) {
+    if (!p.postignuto) continue;
+    const [d, m, g] = p.postignuto.datum.split(".").map(Number);
+    const pre = (danas - new Date(g, m - 1, d).getTime()) / 86400000;
+    if (pre <= 7 && !vidjeno(p.id)) { slavi(p); break; }  // jedno slavlje odjednom
+  }
+});
 </script>
 </body>
 </html>

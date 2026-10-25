@@ -15,6 +15,41 @@ SABLON = os.path.join(FOLDER, "web", "sablon.html")
 IZLAZ = os.path.join(FOLDER, "docs")
 RASPORED = os.path.join(FOLDER, "raspored.csv")
 
+# Jokićevi brojevi u karijeri (regularni deo sezone) PRE ove sezone, zaključno sa 2025/26.
+# Izvori: landofbasketball.com (zbir po sezonama), Forbes/Yahoo za tripl-dablove.
+PRE_SEZONE = {"td": 198, "poeni": 18009, "skokovi": 8977, "asistencije": 6080}
+
+# Večna lista tripl-dablova u regularnom delu sezone (bez Jokića, koji se računa uživo).
+# Izvor: NBA.com (ažurirano 12.8.2026), proveren i sa Land of Basketball.
+# "aktivan": igrač još igra, pa je broj stanje pre sezone 2026/27.
+VECNA_LISTA_TD = [
+    {"ime": "Russell Westbrook", "td": 209},
+    {"ime": "Oscar Robertson", "td": 181},
+    {"ime": "Magic Johnson", "td": 138},
+    {"ime": "LeBron James", "td": 125, "aktivan": True},
+    {"ime": "Jason Kidd", "td": 107},
+    {"ime": "Luka Dončić", "td": 90, "aktivan": True},
+    {"ime": "James Harden", "td": 82, "aktivan": True},
+    {"ime": "Wilt Chamberlain", "td": 78},
+    {"ime": "Domantas Sabonis", "td": 68, "aktivan": True},
+]
+
+# Prekretnice koje stranica prati; kad se dostignu, stranica slavi
+PREKRETNICE = [
+    {"id": "td-rekord", "kljuc": "td", "cilj": 210,
+     "naziv": "Rekord NBA po broju tripl-dablova",
+     "opis": "Dosadašnji rekord: Russell Westbrook, 209",
+     "slavlje": "Nikola Jokić je novi rekorder NBA po broju tripl-dablova!"},
+    {"id": "poeni-20000", "kljuc": "poeni", "cilj": 20000,
+     "naziv": "20.000 poena u karijeri",
+     "opis": "Regularni deo sezone",
+     "slavlje": "Nikola Jokić je prešao 20.000 poena u karijeri!"},
+    {"id": "skokovi-10000", "kljuc": "skokovi", "cilj": 10000,
+     "naziv": "10.000 skokova u karijeri",
+     "opis": "Regularni deo sezone",
+     "slavlje": "Nikola Jokić je prešao 10.000 skokova u karijeri!"},
+]
+
 
 def ucitaj_raspored():
     """Čita raspored iz raspored.csv (redovi koji počinju sa # su komentari)."""
@@ -47,6 +82,25 @@ def _ucinak(poeni, asistencije, skokovi):
     return {3: "TD", 2: "DD"}.get(kategorije, "")
 
 
+def izracunaj_prekretnice(lista):
+    """Za svaku prekretnicu: koliko je bilo pre sezone, koliko je sada i, ako je
+    dostignuta, u kojoj utakmici. `lista` su odigrane utakmice hronološki."""
+    rezultat = []
+    for p in PREKRETNICE:
+        trenutno = PRE_SEZONE[p["kljuc"]]
+        postignuto = None
+        for u in lista:
+            if p["kljuc"] == "td":
+                trenutno += 1 if u["ucinak"] == "TD" else 0
+            else:
+                trenutno += u[p["kljuc"]]
+            if postignuto is None and trenutno >= p["cilj"]:
+                postignuto = {"redni": u["redni"], "datum": u["datum"], "protivnik": u["protivnik"]}
+        rezultat.append({**p, "pocetak": PRE_SEZONE[p["kljuc"]], "trenutno": trenutno,
+                         "postignuto": postignuto})
+    return rezultat
+
+
 def pripremi_podatke(utakmice, statistika, datum_za_prikaz, ishod, rezultat_brojevi,
                      detalji_utakmice):
     """Pretvara redove iz baze u podatke koje stranica prikazuje."""
@@ -73,6 +127,8 @@ def pripremi_podatke(utakmice, statistika, datum_za_prikaz, ishod, rezultat_broj
         "statistika": statistika,
         "utakmice": lista,
         "raspored": raspored,
+        "prekretnice": izracunaj_prekretnice(lista),
+        "vecna_lista_td": VECNA_LISTA_TD,
     }
 
 
