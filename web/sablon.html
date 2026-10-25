@@ -73,7 +73,8 @@
   .poslednja .meč { font-size: 1.1rem; font-weight: 700; }
   .poslednja .meč .datum { color: var(--muted); font-weight: 400; font-size: 0.9rem; display: block; }
   .poslednja .brojke { display: flex; gap: 18px; font-variant-numeric: tabular-nums; }
-  .poslednja .brojke b { display: block; font-size: 1.5rem; color: var(--gold); line-height: 1.1; }
+  .poslednja .brojke b { display: block; font-size: 1.5rem; color: var(--text); line-height: 1.1; }
+  .poslednja .brojke b.dvocifren { color: var(--gold); }
   .poslednja .brojke span { color: var(--muted); font-size: 0.8rem; }
 
   .ishod { font-weight: 700; white-space: nowrap; }
@@ -365,9 +366,9 @@ if (utakmice.length === 0) {
       ${oznaka(p.mesto) || "vs"} ${p.protivnik} &nbsp;${ishod(p)} ${znacka(p)}
     </div>
     <div class="brojke">
-      <div><b>${p.poeni}</b><span>PTS</span></div>
-      <div><b>${p.asistencije}</b><span>AST</span></div>
-      <div><b>${p.skokovi}</b><span>REB</span></div>
+      <div><b${dvocifren(p.poeni)}>${p.poeni}</b><span>PTS</span></div>
+      <div><b${dvocifren(p.asistencije)}>${p.asistencije}</b><span>AST</span></div>
+      <div><b${dvocifren(p.skokovi)}>${p.skokovi}</b><span>REB</span></div>
       <div><b>${p.minuti}</b><span>MIN</span></div>
     </div>`;
 
