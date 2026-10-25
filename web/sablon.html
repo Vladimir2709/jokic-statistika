@@ -219,7 +219,10 @@
   .slavlje button {
     background: var(--gold); color: var(--bg); border: 0; border-radius: 8px;
     font-weight: 800; font-size: 1rem; padding: 10px 22px; cursor: pointer;
+    transition: opacity 0.4s;
   }
+  /* Dok traje animacija, dugme je bledo i ne prima klik */
+  .slavlje button:disabled { opacity: 0.3; cursor: default; }
 
 
   /* Večna lista tripl-dablova */
@@ -596,7 +599,7 @@ function slavi(p) {
     <p>${p.slavlje}</p>
     ${p.kljuc === "td" ? `<div class="prvi">🥇 Broj 1 na večnoj listi — sam na vrhu istorije NBA</div>${vecnaLista(p.trenutno, 5, false, "mesto")}` : ""}
     <small>Utakmica #${p.postignuto.redni} · ${p.postignuto.datum} · protiv ${p.postignuto.protivnik}</small>
-    <div class="dugme-red"><span class="ruka" aria-hidden="true">👉</span><button type="button">Bravo, Joker! 🏀</button></div>
+    <div class="dugme-red"><span class="ruka" aria-hidden="true">👉</span><button type="button" disabled>Bravo, Joker! 🏀</button></div>
   </div>`;
   const pozadina = document.createElement("div");
   pozadina.className = "slavlje-pozadina";
@@ -604,21 +607,24 @@ function slavi(p) {
   vidjeno(p.id, true);
   // Vatromet traje dok posetilac ne klikne „Bravo, Joker!“
   let zaustavi = () => {};
-  let zvezdaAnimacija = null;
-  el.querySelector("button").addEventListener("click", () => {
-    if (zvezdaAnimacija) zvezdaAnimacija.cancel();
+  const dugme = el.querySelector("button");
+  dugme.addEventListener("click", () => {
     zaustavi();
     el.remove();
     pozadina.remove();
   });
-  const mesto = el.querySelector(".zvezda-mesto");
-  if (!mesto) { zaustavi = vatromet(); el.classList.add("poziv"); return; }
-  // Kod rekorda: prvo zvezda doleti i zakuca se pored Jokićevog imena, pa tek onda vatromet
-  zvezdaAnimacija = zvezdaDoleti(mesto, () => {
-    zvezdaAnimacija = null;
-    el.firstElementChild.classList.add("udarac");  // prozor se malo „trgne“ od udarca
+  // Dugme se uključuje tek kad vatromet malo potraje, da slučajan klik ne prekine animaciju
+  const ukljuciDugme = () => setTimeout(() => {
+    dugme.disabled = false;
     el.classList.add("poziv");                      // ruka pokazuje, dugme vibrira
+  }, 1500);
+  const mesto = el.querySelector(".zvezda-mesto");
+  if (!mesto) { zaustavi = vatromet(); ukljuciDugme(); return; }
+  // Kod rekorda: prvo zvezda doleti i zakuca se pored Jokićevog imena, pa tek onda vatromet
+  zvezdaDoleti(mesto, () => {
+    el.firstElementChild.classList.add("udarac");  // prozor se malo „trgne“ od udarca
     zaustavi = vatromet();
+    ukljuciDugme();
   });
 }
 
