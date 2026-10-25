@@ -123,9 +123,10 @@
 
   /* Detalji utakmice (klik na red) */
   tr.ima-detalje, .red.ima-detalje { cursor: pointer; }
-  .strelica { color: var(--muted); font-size: 0.8rem; }
+  .strelica { color: var(--gold); font-size: 1.25rem; line-height: 1; vertical-align: -2px; opacity: 0.75; }
+  tr.ima-detalje:hover .strelica, .red.ima-detalje:hover .strelica { opacity: 1; }
   .strelica::before { content: "▸"; }
-  .otvoren .strelica { color: var(--gold); }
+  .otvoren .strelica { opacity: 1; }
   .otvoren .strelica::before { content: "▾"; }
   tr.detalji-red td { border-top: none; padding-top: 0; background: rgba(255,255,255,0.02); }
   .detalji {
@@ -248,7 +249,7 @@
 <script>
 // Podatke ovde upisuje aplikacija (jokic_app.py) svaki put kad se doda ili obriše utakmica.
 const PODACI = {
- "azurirano": "25.10.2026. u 04:03",
+ "azurirano": "25.10.2026. u 04:12",
  "statistika": {
   "pobede": 0,
   "porazi": 1,
