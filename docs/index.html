@@ -347,7 +347,7 @@
 <script>
 // Podatke ovde upisuje aplikacija (jokic_app.py) svaki put kad se doda ili obriše utakmica.
 const PODACI = {
- "azurirano": "31.10.2026. u 05:47",
+ "azurirano": "31.10.2026. u 05:56",
  "statistika": {
   "pobede": 3,
   "porazi": 2,
@@ -500,133 +500,152 @@ const PODACI = {
    "pocetak_utc": "2026-10-23T01:30:00Z",
    "protivnik": "Oklahoma City Thunder",
    "mesto": "G",
-   "napomena": ""
+   "napomena": "",
+   "odigrana": true
   },
   {
    "datum_us": "2026-10-24",
    "pocetak_utc": "2026-10-25T01:00:00Z",
    "protivnik": "New Orleans Pelicans",
    "mesto": "D",
-   "napomena": ""
+   "napomena": "",
+   "odigrana": true
   },
   {
    "datum_us": "2026-10-26",
    "pocetak_utc": "2026-10-27T02:00:00Z",
    "protivnik": "Golden State Warriors",
    "mesto": "D",
-   "napomena": ""
+   "napomena": "",
+   "odigrana": true
   },
   {
    "datum_us": "2026-10-28",
    "pocetak_utc": "2026-10-29T00:00:00Z",
    "protivnik": "New Orleans Pelicans",
    "mesto": "G",
-   "napomena": ""
+   "napomena": "",
+   "odigrana": true
   },
   {
    "datum_us": "2026-10-30",
    "pocetak_utc": "2026-10-31T02:00:00Z",
    "protivnik": "Phoenix Suns",
    "mesto": "G",
-   "napomena": "NBA Cup"
+   "napomena": "NBA Cup",
+   "odigrana": true
   },
   {
    "datum_us": "2026-11-02",
    "pocetak_utc": "2026-11-03T02:00:00Z",
    "protivnik": "Portland Trail Blazers",
    "mesto": "D",
-   "napomena": ""
+   "napomena": "",
+   "odigrana": false
   },
   {
    "datum_us": "2026-11-04",
    "pocetak_utc": "2026-11-05T02:00:00Z",
    "protivnik": "Toronto Raptors",
    "mesto": "D",
-   "napomena": ""
+   "napomena": "",
+   "odigrana": false
   },
   {
    "datum_us": "2026-11-07",
    "pocetak_utc": "2026-11-07T22:00:00Z",
    "protivnik": "Indiana Pacers",
    "mesto": "N",
-   "napomena": "Meksiko Siti"
+   "napomena": "Meksiko Siti",
+   "odigrana": false
   },
   {
    "datum_us": "2026-11-09",
    "pocetak_utc": null,
    "protivnik": "Houston Rockets",
    "mesto": "G",
-   "napomena": ""
+   "napomena": "",
+   "odigrana": false
   },
   {
    "datum_us": "2026-11-11",
    "pocetak_utc": null,
    "protivnik": "Memphis Grizzlies",
    "mesto": "G",
-   "napomena": ""
+   "napomena": "",
+   "odigrana": false
   },
   {
    "datum_us": "2026-11-14",
    "pocetak_utc": null,
    "protivnik": "New Orleans Pelicans",
    "mesto": "G",
-   "napomena": ""
+   "napomena": "",
+   "odigrana": false
   },
   {
    "datum_us": "2026-11-16",
    "pocetak_utc": null,
    "protivnik": "Phoenix Suns",
    "mesto": "D",
-   "napomena": ""
+   "napomena": "",
+   "odigrana": false
   },
   {
    "datum_us": "2026-11-18",
    "pocetak_utc": null,
    "protivnik": "Boston Celtics",
    "mesto": "D",
-   "napomena": ""
+   "napomena": "",
+   "odigrana": false
   },
   {
    "datum_us": "2026-11-20",
    "pocetak_utc": "2026-11-21T03:00:00Z",
    "protivnik": "Houston Rockets",
    "mesto": "D",
-   "napomena": ""
+   "napomena": "",
+   "odigrana": false
   },
   {
    "datum_us": "2026-11-22",
    "pocetak_utc": null,
    "protivnik": "Chicago Bulls",
    "mesto": "G",
-   "napomena": ""
+   "napomena": "",
+   "odigrana": false
   },
   {
    "datum_us": "2026-11-24",
    "pocetak_utc": "2026-11-25T03:00:00Z",
    "protivnik": "Dallas Mavericks",
    "mesto": "D",
-   "napomena": ""
+   "napomena": "",
+   "odigrana": false
   },
   {
    "datum_us": "2026-11-27",
    "pocetak_utc": null,
    "protivnik": "Utah Jazz",
    "mesto": "G",
-   "napomena": ""
+   "napomena": "",
+   "odigrana": false
   },
   {
    "datum_us": "2026-11-29",
    "pocetak_utc": null,
    "protivnik": "Toronto Raptors",
    "mesto": "G",
-   "napomena": ""
+   "napomena": "",
+   "odigrana": false
   },
   {
    "datum_us": "2026-11-30",
    "pocetak_utc": null,
    "protivnik": "Detroit Pistons",
    "mesto": "G",
-   "napomena": ""
+   "napomena": "",
+   "odigrana": false
   }
  ],
  "prekretnice": [
@@ -744,7 +763,8 @@ function mestoTekst(r) {
 }
 function prikaziNajavu() {
   const sad = Date.now();
-  const i = raspored.findIndex((r) => pocetak(r) + TRAJANJE > sad);
+  // Preskače utakmice koje su već unete (završene), pa i one koje su trajale kraće od 3 h
+  const i = raspored.findIndex((r) => !r.odigrana && pocetak(r) + TRAJANJE > sad);
   if (i < 0) return;  // raspored je završen ili nije unet
   const r = raspored[i];
   const t = new Date(pocetak(r));

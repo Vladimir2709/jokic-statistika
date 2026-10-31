@@ -126,6 +126,12 @@ def pripremi_podatke(utakmice, statistika, datum_za_prikaz, ishod, rezultat_broj
             "detalji": detalji_utakmice(u),
             "mesto": _mesto_odigrane(u[1], u[2], raspored),  # D / G / N ili None
         })
+    # Utakmica iz rasporeda je odigrana čim je unesena u bazu, pa je najava preskače
+    for r in raspored:
+        r["odigrana"] = any(
+            u[2] == r["protivnik"]
+            and abs((date.fromisoformat(u[1]) - date.fromisoformat(r["datum_us"])).days) <= 1
+            for u in utakmice)
     return {
         "azurirano": datetime.now().strftime("%d.%m.%Y. u %H:%M"),
         "statistika": statistika,

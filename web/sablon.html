@@ -373,7 +373,8 @@ function mestoTekst(r) {
 }
 function prikaziNajavu() {
   const sad = Date.now();
-  const i = raspored.findIndex((r) => pocetak(r) + TRAJANJE > sad);
+  // Preskače utakmice koje su već unete (završene), pa i one koje su trajale kraće od 3 h
+  const i = raspored.findIndex((r) => !r.odigrana && pocetak(r) + TRAJANJE > sad);
   if (i < 0) return;  // raspored je završen ili nije unet
   const r = raspored[i];
   const t = new Date(pocetak(r));
