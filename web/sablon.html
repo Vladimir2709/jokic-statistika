@@ -43,6 +43,8 @@
   header p { margin: 2px 0 0; font-weight: 600; opacity: 0.8; }
 
   .azurirano { color: var(--muted); font-size: 0.9rem; margin: 18px 0 0; }
+  .pregledi { white-space: nowrap; }
+  .pregledi b { color: var(--text, inherit); font-weight: 700; }
 
   h2 {
     font-size: 1.05rem; letter-spacing: 0.04em; text-transform: uppercase;
@@ -341,6 +343,7 @@
   <p class="odricanje">
     Nezvanična stranica navijača. Nije povezana sa Nikolom Jokićem, klubom Denver Nuggets
     niti NBA ligom, niti je oni podržavaju. Statistika je prikupljena iz javno dostupnih izvora.
+    Posete se broje anonimno, bez kolačića (GoatCounter).
   </p>
 </footer>
 
@@ -716,6 +719,23 @@ window.addEventListener("load", () => {
     if (pre <= 7 && !vidjeno(p.id)) { slavi(p); break; }  // jedno slavlje odjednom
   }
 });
+</script>
+
+<!-- Brojanje poseta: GoatCounter (anonimno, bez kolačića) -->
+<script data-goatcounter="https://jokic-statistika.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+<script>
+// Javni brojač: ukupan broj pregleda cele stranice od početka
+fetch("https://jokic-statistika.goatcounter.com/counter/TOTAL.json")
+  .then((odgovor) => (odgovor.ok ? odgovor.json() : null))
+  .then((podaci) => {
+    const broj = podaci ? parseInt(String(podaci.count).replace(/\D/g, ""), 10) : NaN;
+    if (!broj) return;  // brojač se ne prikazuje dok nema podataka
+    const el = document.createElement("span");
+    el.className = "pregledi";
+    el.innerHTML = ` · 👁 <b>${broj.toLocaleString("sr-Latn-RS")}</b> ${broj % 10 === 1 && broj % 100 !== 11 ? "pregled" : "pregleda"}`;
+    document.getElementById("azurirano").append(el);
+  })
+  .catch(() => {});  // ako servis ne radi, stranica radi normalno, samo bez brojača
 </script>
 </body>
 </html>
