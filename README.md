@@ -59,22 +59,6 @@ i posle svake utakmice unosim podatke.
 Cilj mi je da kroz pravi projekat naučim kako se ideja pretvara u proizvod
 koji ljudi koriste, i da korak po korak počnem da razumem i sam kod.
 
-## Pokretanje
-
-Ako želiš da isprobaš aplikaciju kod sebe, potreban je samo Python 3.
-Tkinter i SQLite su već uključeni u njega.
-
-```bash
-git clone https://github.com/Vladimir2709/jokic-statistika.git
-cd jokic-statistika
-python jokic_app.py
-```
-
-Na Windows-u može i dvoklikom na `Jokic_Statistika.vbs`.
-
-Pri prvom pokretanju aplikacija napravi praznu bazu `jokic_statistika.db`.
-Moji podaci sa sezone nisu deo repozitorijuma, pa kod sebe kreneš od nule.
-
 ## Planirano
 
 - [x] Web stranica sa statistikom (GitHub Pages)
@@ -97,6 +81,12 @@ niti NBA ligom, niti je oni podržavaju. Statistika je prikupljena iz javno dost
 Imaš ideju šta bi bilo zanimljivo pratiti, ili si našao grešku?
 Otvori [Issue](https://github.com/Vladimir2709/jokic-statistika/issues).
 Svaki predlog mi pomaže da unapredim projekat.
+
+## Prava
+
+© 2026 Vladimir2709. Sva prava zadržana.
+Kod je javan da bi se video kako je projekat napravljen, ali nije dozvoljeno
+kopiranje i objavljivanje kao sopstvenog projekta.
 
 ---
 
