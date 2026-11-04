@@ -39,19 +39,28 @@ PREKRETNICE = [
     {"id": "td-rekord", "kljuc": "td", "cilj": 210,
      "naziv": "Rekord NBA po broju tripl-dablova",
      "opis": "Dosadašnji rekord: Russell Westbrook, 209",
-     "slavlje": "Nikola Jokić je novi rekorder NBA po broju tripl-dablova!"},
+     "slavlje": "Nikola Jokić je novi rekorder NBA po broju tripl-dablova!",
+     "naziv_en": "NBA record for career triple-doubles",
+     "opis_en": "Previous record: Russell Westbrook, 209",
+     "slavlje_en": "Nikola Jokić is the new NBA all-time triple-double leader!"},
     {"id": "poeni-20000", "kljuc": "poeni", "cilj": 20000,
      "naziv": "20.000 poena u karijeri",
      "opis": "Regularni deo sezone",
-     "slavlje": "Nikola Jokić je prešao 20.000 poena u karijeri!"},
+     "slavlje": "Nikola Jokić je prešao 20.000 poena u karijeri!",
+     "naziv_en": "20,000 career points", "opis_en": "Regular season",
+     "slavlje_en": "Nikola Jokić has passed 20,000 career points!"},
     {"id": "skokovi-10000", "kljuc": "skokovi", "cilj": 10000,
      "naziv": "10.000 skokova u karijeri",
      "opis": "Regularni deo sezone",
-     "slavlje": "Nikola Jokić je prešao 10.000 skokova u karijeri!"},
+     "slavlje": "Nikola Jokić je prešao 10.000 skokova u karijeri!",
+     "naziv_en": "10,000 career rebounds", "opis_en": "Regular season",
+     "slavlje_en": "Nikola Jokić has passed 10,000 career rebounds!"},
     {"id": "asistencije-7000", "kljuc": "asistencije", "cilj": 7000,
      "naziv": "7.000 asistencija u karijeri",
      "opis": "Regularni deo sezone",
-     "slavlje": "Nikola Jokić je prešao 7.000 asistencija u karijeri!"},
+     "slavlje": "Nikola Jokić je prešao 7.000 asistencija u karijeri!",
+     "naziv_en": "7,000 career assists", "opis_en": "Regular season",
+     "slavlje_en": "Nikola Jokić has passed 7,000 career assists!"},
 ]
 
 
@@ -70,13 +79,13 @@ def ucitaj_raspored():
     } for r in csv.DictReader(redovi)]
 
 
-def _mesto_odigrane(datum_baza, protivnik, raspored):
-    """Za odigranu utakmicu nalazi u rasporedu da li je Denver bio domaćin ili gost.
+def _iz_rasporeda(datum_baza, protivnik, raspored):
+    """Za odigranu utakmicu nalazi njen red u rasporedu (ili None).
     Isti protivnik i datum koji se razlikuje najviše 1 dan (naš i američki datum)."""
     d = date.fromisoformat(datum_baza)
     for r in raspored:
         if r["protivnik"] == protivnik and abs((date.fromisoformat(r["datum_us"]) - d).days) <= 1:
-            return r["mesto"]
+            return r
     return None
 
 
@@ -99,7 +108,8 @@ def izracunaj_prekretnice(lista):
             else:
                 trenutno += u[p["kljuc"]]
             if postignuto is None and trenutno >= p["cilj"]:
-                postignuto = {"redni": u["redni"], "datum": u["datum"], "protivnik": u["protivnik"]}
+                postignuto = {"redni": u["redni"], "datum": u["datum"], "datum_us": u["datum_us"],
+                              "protivnik": u["protivnik"]}
         rezultat.append({**p, "pocetak": PRE_SEZONE[p["kljuc"]], "trenutno": trenutno,
                          "postignuto": postignuto})
     return rezultat
@@ -111,9 +121,11 @@ def pripremi_podatke(utakmice, statistika, datum_za_prikaz, ishod, rezultat_broj
     raspored = ucitaj_raspored()
     lista = []
     for redni, u in enumerate(utakmice, start=1):
+        r = _iz_rasporeda(u[1], u[2], raspored)
         lista.append({
             "redni": redni,
-            "datum": datum_za_prikaz(u[1]),
+            "datum": datum_za_prikaz(u[1]),   # po našem vremenu, npr. '24.10.2026'
+            "datum_us": r["datum_us"] if r else u[1],  # po američkom vremenu (za englesku verziju)
             "protivnik": u[2],
             "poeni": u[3],
             "asistencije": u[4],
@@ -124,7 +136,7 @@ def pripremi_podatke(utakmice, statistika, datum_za_prikaz, ishod, rezultat_broj
             "ucinak": _ucinak(u[3], u[4], u[5]),
             # Detaljna statistika (šut, ukradene, blokade...) ili None ako nije uneta
             "detalji": detalji_utakmice(u),
-            "mesto": _mesto_odigrane(u[1], u[2], raspored),  # D / G / N ili None
+            "mesto": r["mesto"] if r else None,  # D / G / N ili None
         })
     # Utakmica iz rasporeda je odigrana čim je unesena u bazu, pa je najava preskače
     for r in raspored:
@@ -134,6 +146,7 @@ def pripremi_podatke(utakmice, statistika, datum_za_prikaz, ishod, rezultat_broj
             for u in utakmice)
     return {
         "azurirano": datetime.now().strftime("%d.%m.%Y. u %H:%M"),
+        "azurirano_iso": datetime.now().astimezone().isoformat(timespec="minutes"),
         "statistika": statistika,
         "utakmice": lista,
         "raspored": raspored,

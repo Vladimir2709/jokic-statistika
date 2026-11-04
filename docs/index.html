@@ -294,6 +294,15 @@
     .kartica .vrednost { font-size: 1.6rem; }
     th, td { padding: 9px 8px; }
   }
+
+  /* Izbor jezika SR | EN u zaglavlju */
+  .jezik { margin-left: auto; display: flex; flex: none; border: 2px solid var(--bg); border-radius: 999px; overflow: hidden; }
+  .jezik button {
+    background: transparent; color: var(--bg); border: 0; font: inherit; font-weight: 800; font-size: 0.85rem;
+    padding: 6px 12px; cursor: pointer; letter-spacing: 0.04em;
+  }
+  .jezik button.aktivan { background: var(--bg); color: var(--gold); }
+  .jezik button:focus-visible { outline: 2px solid var(--bg); outline-offset: 2px; }
 </style>
 <!-- Konfete za proslavu prekretnica -->
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js" defer></script>
@@ -303,8 +312,12 @@
   <div class="wrap">
     <img src="jokic_icon.png" alt="">
     <div>
-      <h1>Nikola Jokić — sezona 2026/27</h1>
-      <p>Denver Nuggets · statistika utakmica</p>
+      <h1 data-t="naslov">Nikola Jokić — sezona 2026/27</h1>
+      <p data-t="podnaslov">Denver Nuggets · statistika utakmica</p>
+    </div>
+    <div class="jezik" role="group" aria-label="Jezik / Language">
+      <button type="button" data-jezik="sr">SR</button>
+      <button type="button" data-jezik="en">EN</button>
     </div>
   </div>
 </header>
@@ -313,34 +326,34 @@
   <p class="azurirano" id="azurirano"></p>
 
   <section id="sledeca-sekcija" hidden>
-    <h2>Sledeća utakmica</h2>
+    <h2 data-t="sledeca">Sledeća utakmica</h2>
     <div class="sledeca" id="sledeca"></div>
     <div class="naredne" id="naredne"></div>
-    <p class="napomena-vreme">Vreme je prikazano po satu tvog uređaja.</p>
+    <p class="napomena-vreme" data-t="vremeNapomena">Vreme je prikazano po satu tvog uređaja.</p>
   </section>
 
-  <h2>Statistika sezone</h2>
+  <h2 data-t="statistika">Statistika sezone</h2>
   <div class="kartice" id="kartice"></div>
 
   <section id="poslednja-sekcija" hidden>
-    <h2>Poslednja utakmica</h2>
+    <h2 data-t="poslednja">Poslednja utakmica</h2>
     <div class="poslednja" id="poslednja"></div>
   </section>
 
-  <h2>Sve utakmice</h2>
-  <p class="uputstvo" id="uputstvo" hidden>Klikni na utakmicu označenu sa ▸ za detaljnu statistiku.</p>
+  <h2 data-t="sve">Sve utakmice</h2>
+  <p class="uputstvo" id="uputstvo" hidden></p>
   <div id="utakmice"></div>
 
   <section id="rekord-sekcija" hidden>
-    <h2>Dostignuća u karijeri</h2>
+    <h2 data-t="dostignuca">Dostignuća u karijeri</h2>
     <div class="prekretnice" id="prekretnice"></div>
   </section>
 </main>
 
 <footer>
-  Podatke unosim ručno posle svake utakmice.<br>
-  Projekat i ceo kod: <a href="https://github.com/Vladimir2709/jokic-statistika">github.com/Vladimir2709/jokic-statistika</a>
-  <p class="odricanje">
+  <span data-t="unos">Podatke unosim ručno posle svake utakmice.</span><br>
+  <span data-t="kod">Projekat i ceo kod:</span> <a href="https://github.com/Vladimir2709/jokic-statistika">github.com/Vladimir2709/jokic-statistika</a>
+  <p class="odricanje" data-t="odricanje">
     Nezvanična stranica navijača. Nije povezana sa Nikolom Jokićem, klubom Denver Nuggets
     niti NBA ligom, niti je oni podržavaju. Statistika je prikupljena iz javno dostupnih izvora.
     Posete se broje anonimno, bez kolačića (GoatCounter).
@@ -350,7 +363,8 @@
 <script>
 // Podatke ovde upisuje aplikacija (jokic_app.py) svaki put kad se doda ili obriše utakmica.
 const PODACI = {
- "azurirano": "03.11.2026. u 06:03",
+ "azurirano": "04.11.2026. u 17:23",
+ "azurirano_iso": "2026-11-04T17:23+01:00",
  "statistika": {
   "pobede": 3,
   "porazi": 3,
@@ -369,6 +383,7 @@ const PODACI = {
   {
    "redni": 1,
    "datum": "23.10.2026",
+   "datum_us": "2026-10-22",
    "protivnik": "Oklahoma City Thunder",
    "poeni": 13,
    "asistencije": 5,
@@ -395,6 +410,7 @@ const PODACI = {
   {
    "redni": 2,
    "datum": "25.10.2026",
+   "datum_us": "2026-10-24",
    "protivnik": "New Orleans Pelicans",
    "poeni": 35,
    "asistencije": 10,
@@ -421,6 +437,7 @@ const PODACI = {
   {
    "redni": 3,
    "datum": "27.10.2026",
+   "datum_us": "2026-10-26",
    "protivnik": "Golden State Warriors",
    "poeni": 19,
    "asistencije": 11,
@@ -447,6 +464,7 @@ const PODACI = {
   {
    "redni": 4,
    "datum": "29.10.2026",
+   "datum_us": "2026-10-28",
    "protivnik": "New Orleans Pelicans",
    "poeni": 21,
    "asistencije": 10,
@@ -473,6 +491,7 @@ const PODACI = {
   {
    "redni": 5,
    "datum": "31.10.2026",
+   "datum_us": "2026-10-30",
    "protivnik": "Phoenix Suns",
    "poeni": 18,
    "asistencije": 10,
@@ -499,6 +518,7 @@ const PODACI = {
   {
    "redni": 6,
    "datum": "03.11.2026",
+   "datum_us": "2026-11-02",
    "protivnik": "Portland Trail Blazers",
    "poeni": 26,
    "asistencije": 8,
@@ -685,6 +705,9 @@ const PODACI = {
    "naziv": "Rekord NBA po broju tripl-dablova",
    "opis": "Dosadašnji rekord: Russell Westbrook, 209",
    "slavlje": "Nikola Jokić je novi rekorder NBA po broju tripl-dablova!",
+   "naziv_en": "NBA record for career triple-doubles",
+   "opis_en": "Previous record: Russell Westbrook, 209",
+   "slavlje_en": "Nikola Jokić is the new NBA all-time triple-double leader!",
    "pocetak": 198,
    "trenutno": 200,
    "postignuto": null
@@ -696,6 +719,9 @@ const PODACI = {
    "naziv": "20.000 poena u karijeri",
    "opis": "Regularni deo sezone",
    "slavlje": "Nikola Jokić je prešao 20.000 poena u karijeri!",
+   "naziv_en": "20,000 career points",
+   "opis_en": "Regular season",
+   "slavlje_en": "Nikola Jokić has passed 20,000 career points!",
    "pocetak": 18009,
    "trenutno": 18141,
    "postignuto": null
@@ -707,6 +733,9 @@ const PODACI = {
    "naziv": "10.000 skokova u karijeri",
    "opis": "Regularni deo sezone",
    "slavlje": "Nikola Jokić je prešao 10.000 skokova u karijeri!",
+   "naziv_en": "10,000 career rebounds",
+   "opis_en": "Regular season",
+   "slavlje_en": "Nikola Jokić has passed 10,000 career rebounds!",
    "pocetak": 8977,
    "trenutno": 9035,
    "postignuto": null
@@ -718,6 +747,9 @@ const PODACI = {
    "naziv": "7.000 asistencija u karijeri",
    "opis": "Regularni deo sezone",
    "slavlje": "Nikola Jokić je prešao 7.000 asistencija u karijeri!",
+   "naziv_en": "7,000 career assists",
+   "opis_en": "Regular season",
+   "slavlje_en": "Nikola Jokić has passed 7,000 career assists!",
    "pocetak": 6080,
    "trenutno": 6134,
    "postignuto": null
@@ -771,6 +803,114 @@ const s = PODACI.statistika;
 const utakmice = PODACI.utakmice;
 const raspored = PODACI.raspored || [];
 
+// ── Jezik: srpski ili engleski ──
+// Svi tekstovi stranice na oba jezika. Brojke i imena timova su isti.
+const TEKST = {
+  sr: {
+    naslovStrane: "Nikola Jokić — Statistika 2026/27",
+    opisStrane: "Statistika Nikole Jokića kroz NBA sezonu 2026/27: proseci, dabl-dablovi, tripl-dablovi i sve utakmice Denver Nuggetsa.",
+    naslov: "Nikola Jokić — sezona 2026/27",
+    podnaslov: "Denver Nuggets · statistika utakmica",
+    sledeca: "Sledeća utakmica",
+    vremeNapomena: "Vreme je prikazano po satu tvog uređaja.",
+    statistika: "Statistika sezone",
+    poslednja: "Poslednja utakmica",
+    sve: "Sve utakmice",
+    dostignuca: "Dostignuća u karijeri",
+    unos: "Podatke unosim ručno posle svake utakmice.",
+    kod: "Projekat i ceo kod:",
+    odricanje: "Nezvanična stranica navijača. Nije povezana sa Nikolom Jokićem, klubom Denver Nuggets niti NBA ligom, niti je oni podržavaju. Statistika je prikupljena iz javno dostupnih izvora. Posete se broje anonimno, bez kolačića (GoatCounter).",
+    azurirano: "Ažurirano",
+    pregledi: (n) => (n % 10 === 1 && n % 100 !== 11 ? "pregled" : "pregleda"),
+    uputstvo: "Klikni na utakmicu označenu sa ▸ za detaljnu statistiku.",
+    kodKuce: "kod kuće", uGostima: "u gostima", neutralno: "neutralni teren",
+    u: "u", uToku: "● U TOKU", pocinjeZa: "počinje za",
+    americkiDatum: "(američki datum) · tačno vreme uskoro", sad: "(SAD)",
+    kartice: ["Prosek poena", "Prosek asistencija", "Prosek skokova", "Prosek minuta",
+              "Utakmice", "Pobede-porazi", "Dabl-dabl", "Tripl-dabl"],
+    sutIzIgre: "Šut iz igre", trojke: "Trojke", slobodna: "Slobodna bacanja", ukradene: "Ukradene lopte",
+    blokade: "Blokade", izgubljene: "Izgubljene lopte", faulovi: "Faulovi",
+    td: "TRIPL-DABL", dd: "DABL-DABL",
+    prazno: "Sezona tek počinje — prva utakmica stiže uskoro. 🏀",
+    datum: "Datum", protivnik: "Protivnik", rezultat: "Rezultat",
+    vecnaLista: "Večna lista tripl-dablova (NBA)",
+    ispred: (n, ime) => `+${n} ispred ${ime}a`,
+    jos_igra: "* još igra — stanje pre sezone 2026/27",
+    postignuto: (p) => `✅ Postignuto u utakmici #${p.redni} (${p.datum}, protiv ${p.protivnik})`,
+    izjednacen: "<b>Rekord izjednačen!</b> Još <b>1</b> tripl-dabl do novog rekorda.",
+    jedinica: { td: "tripl-dablova", poeni: "poena", skokovi: "skokova", asistencije: "asistencija" },
+    ostalo: (n, j, o) => `Još <b>${n}</b> ${j} · ove sezone: ${o}`,
+    istorija: "🎆 ISTORIJA!!! 🎆",
+    prvi: "🥇 Broj 1 na večnoj listi — sam na vrhu istorije NBA",
+    utakmica: "Utakmica", protiv: "protiv",
+  },
+  en: {
+    naslovStrane: "Nikola Jokić — 2026/27 Stats",
+    opisStrane: "Nikola Jokić through the 2026/27 NBA season: averages, double-doubles, triple-doubles and every Denver Nuggets game.",
+    naslov: "Nikola Jokić — 2026/27 season",
+    podnaslov: "Denver Nuggets · game-by-game stats",
+    sledeca: "Next game",
+    vremeNapomena: "Times are shown in your device's time zone.",
+    statistika: "Season stats",
+    poslednja: "Last game",
+    sve: "All games",
+    dostignuca: "Career milestones",
+    unos: "I enter the stats by hand after every game.",
+    kod: "Project and full source code:",
+    odricanje: "Unofficial fan site. Not affiliated with or endorsed by Nikola Jokić, the Denver Nuggets or the NBA. Stats are compiled from publicly available sources. Visits are counted anonymously, without cookies (GoatCounter). Game dates are US dates.",
+    azurirano: "Updated",
+    pregledi: (n) => (n === 1 ? "view" : "views"),
+    uputstvo: "Tap a game marked ▸ for detailed stats.",
+    kodKuce: "home", uGostima: "away", neutralno: "neutral site",
+    u: "at", uToku: "● LIVE", pocinjeZa: "starts in",
+    americkiDatum: "(US date) · tip-off time TBA", sad: "(US)",
+    kartice: ["Points per game", "Assists per game", "Rebounds per game", "Minutes per game",
+              "Games", "Wins-losses", "Double-doubles", "Triple-doubles"],
+    sutIzIgre: "Field goals", trojke: "Three-pointers", slobodna: "Free throws", ukradene: "Steals",
+    blokade: "Blocks", izgubljene: "Turnovers", faulovi: "Fouls",
+    td: "TRIPLE-DOUBLE", dd: "DOUBLE-DOUBLE",
+    prazno: "The season is just getting started — first game coming soon. 🏀",
+    datum: "Date", protivnik: "Opponent", rezultat: "Result",
+    vecnaLista: "NBA all-time triple-double leaders",
+    ispred: (n, ime) => `+${n} ahead of ${ime}`,
+    jos_igra: "* still active — total before the 2026/27 season",
+    postignuto: (p) => `✅ Reached in game #${p.redni} (${p.datum}, vs ${p.protivnik})`,
+    izjednacen: "<b>Record tied!</b> <b>1</b> more triple-double for the new record.",
+    jedinica: { td: "triple-doubles", poeni: "points", skokovi: "rebounds", asistencije: "assists" },
+    ostalo: (n, j, o) => `<b>${n}</b> ${j} to go · this season: ${o}`,
+    istorija: "🎆 HISTORY!!! 🎆",
+    prvi: "🥇 No. 1 all-time — alone at the top of NBA history",
+    utakmica: "Game", protiv: "vs",
+  },
+};
+// Napomene iz rasporeda koje se prevode (ostale su iste na oba jezika, npr. „NBA Cup“)
+const NAPOMENE_EN = { "Meksiko Siti": "Mexico City" };
+
+// Koji jezik: 1) ?lang= u linku, 2) ranije izabran, 3) jezik uređaja (naš region → srpski, ostali → engleski)
+function pocetniJezik() {
+  const izLinka = new URLSearchParams(location.search).get("lang");
+  if (izLinka === "sr" || izLinka === "en") return izLinka;
+  try {
+    const sacuvan = localStorage.getItem("jezik");
+    if (sacuvan === "sr" || sacuvan === "en") return sacuvan;
+  } catch (e) {}
+  const jezici = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || ""];
+  return jezici.some((j) => /^(sr|hr|bs|sh|cnr)\b/i.test(j)) ? "sr" : "en";
+}
+let jezik = pocetniJezik();
+let T = TEKST[jezik];
+const lok = () => (jezik === "en" ? "en-US" : "sr-Latn-RS");
+const broj = (x) => x.toLocaleString(lok());
+const jedna = (x) => x.toFixed(1);
+
+// Datum odigrane utakmice: po našem vremenu na srpskom, po američkom na engleskom
+const fUS = () => new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+function datumUtakmice(u) {
+  return jezik === "en" ? fUS().format(new Date(u.datum_us + "T12:00:00Z")) : u.datum;
+}
+// Rezultat: na engleskom sa crticom (127-120), kao u Americi
+const rez = (r) => (jezik === "en" ? r.replace(":", "-") : r);
+
 // vs = Denver je domaćin (ili neutralni teren), @ = Denver je gost
 const oznaka = (mesto) => (mesto === "G" ? "@" : mesto ? "vs" : "");
 const oznakaHtml = (mesto) => (mesto ? `<span class="mesto-oznaka">${oznaka(mesto)}</span>` : "");
@@ -780,108 +920,110 @@ function pocetak(r) {
   // Ako vreme još nije poznato, uzima se kraj tog dana u Americi
   return new Date(r.pocetak_utc || r.datum_us + "T23:59:00-05:00").getTime();
 }
-const fDatum = new Intl.DateTimeFormat("sr-Latn-RS", { weekday: "long", day: "numeric", month: "long" });
-const fKratko = new Intl.DateTimeFormat("sr-Latn-RS", { weekday: "short", day: "numeric", month: "numeric" });
-const fVreme = new Intl.DateTimeFormat("sr-Latn-RS", { hour: "2-digit", minute: "2-digit" });
 const TRAJANJE = 3 * 60 * 60 * 1000;  // utakmica traje oko 2,5 h; posle 3 h prelazi se na sledeću
 
 function mestoTekst(r) {
-  if (r.mesto === "D") return "kod kuće";
-  if (r.mesto === "G") return "u gostima";
-  return "neutralni teren";
+  if (r.mesto === "D") return T.kodKuce;
+  if (r.mesto === "G") return T.uGostima;
+  return T.neutralno;
 }
+const napomena = (n) => (jezik === "en" && NAPOMENE_EN[n]) || n;
 function prikaziNajavu() {
   const sad = Date.now();
   // Preskače utakmice koje su već unete (završene), pa i one koje su trajale kraće od 3 h
   const i = raspored.findIndex((r) => !r.odigrana && pocetak(r) + TRAJANJE > sad);
   if (i < 0) return;  // raspored je završen ili nije unet
+  const fDatum = new Intl.DateTimeFormat(lok(), { weekday: "long", day: "numeric", month: "long" });
+  const fKratko = new Intl.DateTimeFormat(lok(), { weekday: "short", day: "numeric", month: jezik === "en" ? "short" : "numeric" });
+  const fVreme = new Intl.DateTimeFormat(lok(), jezik === "en" ? { hour: "numeric", minute: "2-digit" } : { hour: "2-digit", minute: "2-digit" });
+  const usDatum = (d) => (jezik === "en" ? fUS().format(new Date(d + "T12:00:00Z")) : d.split("-").reverse().join(".") + ".");
   const r = raspored[i];
   const t = new Date(pocetak(r));
   const kada = r.pocetak_utc
-    ? `<b>${fDatum.format(t)}</b> u <b>${fVreme.format(t)}</b>`
-    : `<b>${r.datum_us.split("-").reverse().join(".")}.</b> (američki datum) · tačno vreme uskoro`;
+    ? `<b>${fDatum.format(t)}</b> ${T.u} <b>${fVreme.format(t)}</b>`
+    : `<b>${usDatum(r.datum_us)}</b> ${T.americkiDatum}`;
   let desno = "";
   const razlika = t.getTime() - sad;
   if (r.pocetak_utc && razlika <= 0) {
-    desno = '<span class="uzivo">● U TOKU</span>';
+    desno = `<span class="uzivo">${T.uToku}</span>`;
   } else if (r.pocetak_utc) {
     const min = Math.floor(razlika / 60000), d = Math.floor(min / 1440), h = Math.floor((min % 1440) / 60), m = min % 60;
     const tekst = d > 0 ? `${d} d ${h} h` : h > 0 ? `${h} h ${m} min` : `${m} min`;
-    desno = `<div class="odbrojavanje"><span>počinje za</span><b>${tekst}</b></div>`;
+    desno = `<div class="odbrojavanje"><span>${T.pocinjeZa}</span><b>${tekst}</b></div>`;
   }
   document.getElementById("sledeca").innerHTML = `
     <div>
       <div class="protiv"><span class="oznaka">${oznaka(r.mesto)}</span>${r.protivnik}</div>
       <div class="kada">${kada}</div>
-      <div class="kada">${mestoTekst(r)}${r.napomena ? " · " + r.napomena : ""}</div>
+      <div class="kada">${mestoTekst(r)}${r.napomena ? " · " + napomena(r.napomena) : ""}</div>
     </div>
     ${desno}`;
   document.getElementById("naredne").innerHTML = raspored.slice(i + 1, i + 4).map((n) => {
     const tn = new Date(pocetak(n));
-    const k = n.pocetak_utc ? `${fKratko.format(tn)} · ${fVreme.format(tn)}` : `${n.datum_us.split("-").reverse().join(".")}. (SAD)`;
-    return `<div><span>${k}</span><b>${oznaka(n.mesto)} ${n.protivnik}</b>${n.napomena ? `<span>${n.napomena}</span>` : ""}</div>`;
+    const k = n.pocetak_utc ? `${fKratko.format(tn)} · ${fVreme.format(tn)}` : `${usDatum(n.datum_us)} ${T.sad}`;
+    return `<div><span>${k}</span><b>${oznaka(n.mesto)} ${n.protivnik}</b>${n.napomena ? `<span>${napomena(n.napomena)}</span>` : ""}</div>`;
   }).join("");
   document.getElementById("sledeca-sekcija").hidden = false;
 }
-prikaziNajavu();
 setInterval(prikaziNajavu, 30000);  // odbrojavanje se osvežava na svakih 30 sekundi
-const jedna = (x) => x.toFixed(1);
 
-document.getElementById("azurirano").textContent = "Ažurirano: " + PODACI.azurirano;
-
-// Kartice: prvo Jokićev učinak (proseci po utakmici), zatim ukupno u sezoni
-const kartice = [
-  [jedna(s.prosek_poena), "Prosek poena"],
-  [jedna(s.prosek_ast), "Prosek asistencija"],
-  [jedna(s.prosek_sko), "Prosek skokova"],
-  [jedna(s.prosek_min), "Prosek minuta"],
-  [s.utakmice, "Utakmice"],
-  [s.pobede + "-" + s.porazi, "Pobede-porazi"],
-  [s.dabl_dabl, "Dabl-dabl"],
-  [s.tripl_dabl, "Tripl-dabl"],
-];
-document.getElementById("kartice").innerHTML = kartice.map(([v, n]) =>
-  `<div class="kartica"><div class="vrednost">${v}</div><div class="naziv">${n}</div></div>`
-).join("");
-
+// Red „Ažurirano“ + broj pregleda (broj stiže od GoatCounter-a, kad stigne)
+let brojPregleda = 0;
+function prikaziAzurirano() {
+  let kada = PODACI.azurirano;
+  if (jezik === "en" && PODACI.azurirano_iso) {
+    kada = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })
+      .format(new Date(PODACI.azurirano_iso));
+  }
+  document.getElementById("azurirano").innerHTML = `${T.azurirano}: ${kada}` +
+    (brojPregleda ? `<span class="pregledi"> · 👁 <b>${broj(brojPregleda)}</b> ${T.pregledi(brojPregleda)}</span>` : "");
+}
 
 function detaljiHtml(d) {
   const pct = (a, b) => (b ? Math.round(100 * a / b) + "%" : "–");
   const sut = (a, b, n) => `<div><b>${a}/${b}</b><span class="pct">${pct(a, b)}</span><small>${n}</small></div>`;
-  const broj = (x, n) => `<div><b>${x}</b><small>${n}</small></div>`;
+  const br = (x, n) => `<div><b>${x}</b><small>${n}</small></div>`;
   const pm = d.plus_minus > 0 ? "+" + d.plus_minus : d.plus_minus;
   return `<div class="detalji">
-    ${d.fga != null ? sut(d.fgm, d.fga, "Šut iz igre") : ""}
-    ${d.tpa != null ? sut(d.tpm, d.tpa, "Trojke") : ""}
-    ${d.fta != null ? sut(d.ftm, d.fta, "Slobodna bacanja") : ""}
-    ${d.ukradene != null ? broj(d.ukradene, "Ukradene lopte") : ""}
-    ${d.blokade != null ? broj(d.blokade, "Blokade") : ""}
-    ${d.izgubljene != null ? broj(d.izgubljene, "Izgubljene lopte") : ""}
-    ${d.faulovi != null ? broj(d.faulovi, "Faulovi") : ""}
-    ${d.plus_minus != null ? broj(pm, "+/-") : ""}
+    ${d.fga != null ? sut(d.fgm, d.fga, T.sutIzIgre) : ""}
+    ${d.tpa != null ? sut(d.tpm, d.tpa, T.trojke) : ""}
+    ${d.fta != null ? sut(d.ftm, d.fta, T.slobodna) : ""}
+    ${d.ukradene != null ? br(d.ukradene, T.ukradene) : ""}
+    ${d.blokade != null ? br(d.blokade, T.blokade) : ""}
+    ${d.izgubljene != null ? br(d.izgubljene, T.izgubljene) : ""}
+    ${d.faulovi != null ? br(d.faulovi, T.faulovi) : ""}
+    ${d.plus_minus != null ? br(pm, "+/-") : ""}
   </div>`;
 }
 
 function znacka(u) {
-  if (u.ucinak === "TD") return '<span class="znacka td">TRIPL-DABL</span>';
-  if (u.ucinak === "DD") return '<span class="znacka dd">DABL-DABL</span>';
+  if (u.ucinak === "TD") return `<span class="znacka td">${T.td}</span>`;
+  if (u.ucinak === "DD") return `<span class="znacka dd">${T.dd}</span>`;
   return "";
 }
 function ishod(u) {
-  return u.ishod ? `<span class="ishod ${u.ishod}">${u.ishod} ${u.rezultat}</span>` : "–";
+  return u.ishod ? `<span class="ishod ${u.ishod}">${u.ishod} ${rez(u.rezultat)}</span>` : "–";
 }
 const dvocifren = (x) => (x >= 10 ? ' class="dvocifren"' : "");
 
-if (utakmice.length === 0) {
-  document.getElementById("utakmice").innerHTML =
-    '<div class="prazno">Sezona tek počinje — prva utakmica stiže uskoro. 🏀</div>';
-} else {
+function prikaziUtakmice() {
+  // Kartice: prvo Jokićev učinak (proseci po utakmici), zatim ukupno u sezoni
+  const vrednosti = [jedna(s.prosek_poena), jedna(s.prosek_ast), jedna(s.prosek_sko), jedna(s.prosek_min),
+                     s.utakmice, s.pobede + "-" + s.porazi, s.dabl_dabl, s.tripl_dabl];
+  document.getElementById("kartice").innerHTML = vrednosti.map((v, i) =>
+    `<div class="kartica"><div class="vrednost">${v}</div><div class="naziv">${T.kartice[i]}</div></div>`
+  ).join("");
+
+  if (utakmice.length === 0) {
+    document.getElementById("utakmice").innerHTML = `<div class="prazno">${T.prazno}</div>`;
+    return;
+  }
   // Poslednja utakmica (najnovija po datumu)
   const p = utakmice[utakmice.length - 1];
   document.getElementById("poslednja-sekcija").hidden = false;
   document.getElementById("poslednja").innerHTML = `
     <div class="meč">
-      <span class="datum">#${p.redni} · ${p.datum}</span>
+      <span class="datum">#${p.redni} · ${datumUtakmice(p)}</span>
       ${oznaka(p.mesto) || "vs"} ${p.protivnik} &nbsp;${ishod(p)} ${znacka(p)}
     </div>
     <div class="brojke">
@@ -895,7 +1037,7 @@ if (utakmice.length === 0) {
   const redovi = utakmice.map((u, i) => `
     <tr class="${u.detalji ? "ima-detalje" : ""}" data-i="${i}">
       <td class="br">${u.detalji ? '<span class="strelica"></span> ' : ""}${u.redni}</td>
-      <td>${u.datum}</td>
+      <td>${datumUtakmice(u)}</td>
       <td class="tim">${oznakaHtml(u.mesto)}${u.protivnik}</td>
       <td>${ishod(u)}</td>
       <td${dvocifren(u.poeni)}>${u.poeni}</td>
@@ -910,7 +1052,7 @@ if (utakmice.length === 0) {
   const listaRedovi = utakmice.map((u, i) => `
     <div class="red ${u.detalji ? "ima-detalje" : ""}" data-i="${i}">
       <div class="gore">
-        <div><span class="meta">#${u.redni} · ${u.datum}</span><br><span class="tim">${oznakaHtml(u.mesto)}${u.protivnik}</span></div>
+        <div><span class="meta">#${u.redni} · ${datumUtakmice(u)}</span><br><span class="tim">${oznakaHtml(u.mesto)}${u.protivnik}</span></div>
         <div>${ishod(u)} ${u.detalji ? '<span class="strelica"></span>' : ""}</div>
       </div>
       <div class="dole">
@@ -926,14 +1068,16 @@ if (utakmice.length === 0) {
   document.getElementById("utakmice").innerHTML = `
     <div class="tabela-okvir"><table>
       <thead><tr>
-        <th>#</th><th>Datum</th><th class="tim">Protivnik</th><th>Rezultat</th>
+        <th>#</th><th>${T.datum}</th><th class="tim">${T.protivnik}</th><th>${T.rezultat}</th>
         <th>PTS</th><th>AST</th><th>REB</th><th>MIN</th><th></th>
       </tr></thead>
       <tbody>${redovi}</tbody>
     </table></div>
     <div class="lista">${listaRedovi}</div>`;
 
-  if (utakmice.some((u) => u.detalji)) document.getElementById("uputstvo").hidden = false;
+  const uputstvo = document.getElementById("uputstvo");
+  uputstvo.textContent = T.uputstvo;
+  if (utakmice.some((u) => u.detalji)) uputstvo.hidden = false;
 
   // Klik na utakmicu otvara/zatvara njene detalje
   document.querySelectorAll(".ima-detalje").forEach((el) => {
@@ -961,47 +1105,76 @@ function vecnaLista(jokicTd, koliko, saRazlikom = true, zvezda = "") {
   const lista = [...(PODACI.vecna_lista_td || []), { ime: "Nikola Jokić", td: jokicTd, jokic: true }]
     .sort((a, b) => b.td - a.td || (a.jokic ? -1 : 1)).slice(0, koliko);
   const drugi = saRazlikom && lista[0].jokic && lista[1] ? lista[0].td - lista[1].td : 0;
-  return `<div class="lista-td"><div class="naslov">Večna lista tripl-dablova (NBA)</div><ol>` +
+  return `<div class="lista-td"><div class="naslov">${T.vecnaLista}</div><ol>` +
     lista.map((x, i) => `<li class="${x.jokic ? "jokic" : ""}"><span class="mesto">${i + 1}.</span>
-      <span class="ime">${x.ime}${x.jokic && zvezda === "stalna" ? ` ${ZVEZDA}` : ""}${x.jokic && zvezda === "mesto" ? '<span class="zvezda-mesto"></span>' : ""}${x.jokic && drugi > 0 ? `<span class="razlika">+${drugi} ispred ${lista[1].ime.split(" ").pop()}a</span>` : ""}</span>
+      <span class="ime">${x.ime}${x.jokic && zvezda === "stalna" ? ` ${ZVEZDA}` : ""}${x.jokic && zvezda === "mesto" ? '<span class="zvezda-mesto"></span>' : ""}${x.jokic && drugi > 0 ? `<span class="razlika">${T.ispred(drugi, lista[1].ime.split(" ").pop())}</span>` : ""}</span>
       <span class="br">${x.td}${x.aktivan ? "*" : ""}</span></li>`).join("") + "</ol>" +
-    (lista.some((x) => x.aktivan) ? '<div class="fusnota">* još igra — stanje pre sezone 2026/27</div>' : "") + "</div>";
+    (lista.some((x) => x.aktivan) ? `<div class="fusnota">${T.jos_igra}</div>` : "") + "</div>";
 }
-const broj = (x) => x.toLocaleString("sr-Latn-RS");
 const prekretnice = PODACI.prekretnice || [];
-document.getElementById("prekretnice").innerHTML = prekretnice.map((p) => {
-  const ukupno = p.cilj - p.pocetak, ovaSezona = p.trenutno - p.pocetak;
-  let napredak;
-  if (p.kljuc === "td") {
-    // Tačkica za svaki tripl-dabl koji fali do rekorda (od početka sezone)
-    napredak = '<div class="tackice">' + Array.from({ length: ukupno }, (_, i) =>
-      `<i class="${i < ovaSezona ? "puna" : ""} ${i === ukupno - 1 ? "rekord" : ""}" title="${p.pocetak + i + 1}."></i>`
-    ).join("") + "</div>";
-  } else {
-    const pct = Math.max(0, Math.min(100, (100 * ovaSezona) / ukupno));
-    napredak = `<div class="traka"><div style="width:${pct}%"></div></div>`;
-  }
-  const fali = p.cilj - p.trenutno;
-  let dole;
-  if (p.postignuto) {
-    dole = `<span class="postignuto">✅ Postignuto u utakmici #${p.postignuto.redni} (${p.postignuto.datum}, protiv ${p.postignuto.protivnik})</span>`;
-  } else if (p.kljuc === "td" && p.trenutno === p.cilj - 1) {
-    dole = `<span class="jos"><b>Rekord izjednačen!</b> Još <b>1</b> tripl-dabl do novog rekorda.</span>`;
-  } else {
-    const jedinica = { td: "tripl-dablova", poeni: "poena", skokovi: "skokova", asistencije: "asistencija" }[p.kljuc];
-    dole = `<span class="jos">Još <b>${broj(fali)}</b> ${jedinica} · ove sezone: ${broj(ovaSezona)}</span>`;
-  }
-  return `<div class="prekretnica ${p.kljuc === "td" ? "glavna" : ""}">
-    <div class="gore">
-      <div><h3>${p.naziv}</h3><div class="opis">${p.opis}</div></div>
-      <div class="stanje"><b>${broj(p.trenutno)}</b> <span>/ ${broj(p.cilj)}</span></div>
-    </div>
-    ${napredak}
-    ${dole}
-    ${p.kljuc === "td" ? vecnaLista(p.trenutno, 10, true, p.postignuto ? "stalna" : "") : ""}
-  </div>`;
-}).join("");
-if (prekretnice.length) document.getElementById("rekord-sekcija").hidden = false;
+// Tekst prekretnice na izabranom jeziku (naziv, opis, slavlje)
+const pt = (p, polje) => (jezik === "en" && p[polje + "_en"]) || p[polje];
+// Podaci o utakmici u kojoj je prekretnica dostignuta, sa datumom na izabranom jeziku
+const gdePostignuto = (p) => ({ ...p.postignuto, datum: datumUtakmice(p.postignuto) });
+function prikaziPrekretnice() {
+  document.getElementById("prekretnice").innerHTML = prekretnice.map((p) => {
+    const ukupno = p.cilj - p.pocetak, ovaSezona = p.trenutno - p.pocetak;
+    let napredak;
+    if (p.kljuc === "td") {
+      // Tačkica za svaki tripl-dabl koji fali do rekorda (od početka sezone)
+      napredak = '<div class="tackice">' + Array.from({ length: ukupno }, (_, i) =>
+        `<i class="${i < ovaSezona ? "puna" : ""} ${i === ukupno - 1 ? "rekord" : ""}" title="${p.pocetak + i + 1}."></i>`
+      ).join("") + "</div>";
+    } else {
+      const pct = Math.max(0, Math.min(100, (100 * ovaSezona) / ukupno));
+      napredak = `<div class="traka"><div style="width:${pct}%"></div></div>`;
+    }
+    const fali = p.cilj - p.trenutno;
+    let dole;
+    if (p.postignuto) {
+      dole = `<span class="postignuto">${T.postignuto(gdePostignuto(p))}</span>`;
+    } else if (p.kljuc === "td" && p.trenutno === p.cilj - 1) {
+      dole = `<span class="jos">${T.izjednacen}</span>`;
+    } else {
+      dole = `<span class="jos">${T.ostalo(broj(fali), T.jedinica[p.kljuc], broj(ovaSezona))}</span>`;
+    }
+    return `<div class="prekretnica ${p.kljuc === "td" ? "glavna" : ""}">
+      <div class="gore">
+        <div><h3>${pt(p, "naziv")}</h3><div class="opis">${pt(p, "opis")}</div></div>
+        <div class="stanje"><b>${broj(p.trenutno)}</b> <span>/ ${broj(p.cilj)}</span></div>
+      </div>
+      ${napredak}
+      ${dole}
+      ${p.kljuc === "td" ? vecnaLista(p.trenutno, 10, true, p.postignuto ? "stalna" : "") : ""}
+    </div>`;
+  }).join("");
+  if (prekretnice.length) document.getElementById("rekord-sekcija").hidden = false;
+}
+
+// Iscrtava celu stranicu na izabranom jeziku (poziva se i pri promeni jezika)
+function nacrtaj() {
+  T = TEKST[jezik];
+  document.documentElement.lang = jezik;
+  document.title = T.naslovStrane;
+  document.querySelector('meta[name="description"]').content = T.opisStrane;
+  document.querySelectorAll("[data-t]").forEach((el) => { el.textContent = T[el.dataset.t]; });
+  document.querySelectorAll("[data-jezik]").forEach((d) => d.classList.toggle("aktivan", d.dataset.jezik === jezik));
+  prikaziAzurirano();
+  prikaziNajavu();
+  prikaziUtakmice();
+  prikaziPrekretnice();
+}
+document.querySelectorAll("[data-jezik]").forEach((d) => d.addEventListener("click", () => {
+  if (d.dataset.jezik === jezik) return;
+  jezik = d.dataset.jezik;
+  try { localStorage.setItem("jezik", jezik); } catch (e) {}
+  // Link u adresi prati izabrani jezik, pa se može podeliti (npr. ?lang=en)
+  const url = new URL(location.href);
+  url.searchParams.set("lang", jezik);
+  history.replaceState(null, "", url);
+  nacrtaj();
+}));
+nacrtaj();
 
 // Slavlje: ako je prekretnica dostignuta u poslednjih 7 dana, svaki posetilac
 // jednom vidi vatromet i čestitku (pamti se u browseru posetioca)
@@ -1012,13 +1185,14 @@ function vidjeno(id, oznaci) {
   } catch (e) { return false; }
 }
 function slavi(p) {
+  const g = gdePostignuto(p);
   const el = document.createElement("div");
   el.className = "slavlje";
   el.innerHTML = `<div>
-    <div class="veliko">🎆 ISTORIJA!!! 🎆</div>
-    <p>${p.slavlje}</p>
-    ${p.kljuc === "td" ? `<div class="prvi">🥇 Broj 1 na večnoj listi — sam na vrhu istorije NBA</div>${vecnaLista(p.trenutno, 5, false, "mesto")}` : ""}
-    <small>Utakmica #${p.postignuto.redni} · ${p.postignuto.datum} · protiv ${p.postignuto.protivnik}</small>
+    <div class="veliko">${T.istorija}</div>
+    <p>${pt(p, "slavlje")}</p>
+    ${p.kljuc === "td" ? `<div class="prvi">${T.prvi}</div>${vecnaLista(p.trenutno, 5, false, "mesto")}` : ""}
+    <small>${T.utakmica} #${g.redni} · ${g.datum} · ${T.protiv} ${g.protivnik}</small>
     <div class="dugme-red"><span class="ruka" aria-hidden="true">👉</span><button type="button" disabled>Bravo, Joker! 🏀</button></div>
   </div>`;
   const pozadina = document.createElement("div");
@@ -1144,12 +1318,10 @@ window.addEventListener("load", () => {
 fetch("https://jokic-statistika.goatcounter.com/counter/TOTAL.json")
   .then((odgovor) => (odgovor.ok ? odgovor.json() : null))
   .then((podaci) => {
-    const broj = podaci ? parseInt(String(podaci.count).replace(/\D/g, ""), 10) : NaN;
-    if (!broj) return;  // brojač se ne prikazuje dok nema podataka
-    const el = document.createElement("span");
-    el.className = "pregledi";
-    el.innerHTML = ` · 👁 <b>${broj.toLocaleString("sr-Latn-RS")}</b> ${broj % 10 === 1 && broj % 100 !== 11 ? "pregled" : "pregleda"}`;
-    document.getElementById("azurirano").append(el);
+    const n = podaci ? parseInt(String(podaci.count).replace(/\D/g, ""), 10) : NaN;
+    if (!n) return;  // brojač se ne prikazuje dok nema podataka
+    brojPregleda = n;
+    prikaziAzurirano();
   })
   .catch(() => {});  // ako servis ne radi, stranica radi normalno, samo bez brojača
 </script>
