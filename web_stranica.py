@@ -166,6 +166,8 @@ def napravi_stranicu(podaci):
     os.makedirs(IZLAZ, exist_ok=True)
     with open(os.path.join(IZLAZ, "index.html"), "w", encoding="utf-8") as f:
         f.write(html)
-    ikonica = os.path.join(FOLDER, "assets", "jokic_icon.png")
-    if os.path.exists(ikonica):
-        shutil.copyfile(ikonica, os.path.join(IZLAZ, "jokic_icon.png"))
+    # Ikonica i slika za pregled linka na društvenim mrežama idu pored stranice
+    for slika in ("jokic_icon.png", "pregled.png"):
+        izvor = os.path.join(FOLDER, "assets", slika)
+        if os.path.exists(izvor):
+            shutil.copyfile(izvor, os.path.join(IZLAZ, slika))
