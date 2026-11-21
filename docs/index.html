@@ -77,6 +77,7 @@
     font-variant-numeric: tabular-nums; line-height: 1.1;
   }
   .kartica .naziv { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
+  .kartica .pogodaka { color: var(--muted); font-size: 0.8rem; margin-top: 2px; opacity: 0.8; }
 
   /* Poslednja utakmica */
   .poslednja {
@@ -375,8 +376,8 @@
 <script>
 // Podatke ovde upisuje aplikacija (jokic_app.py) svaki put kad se doda ili obriše utakmica.
 const PODACI = {
- "azurirano": "21.11.2026. u 14:44",
- "azurirano_iso": "2026-11-21T14:44+01:00",
+ "azurirano": "21.11.2026. u 15:01",
+ "azurirano_iso": "2026-11-21T15:01+01:00",
  "statistika": {
   "pobede": 9,
   "porazi": 5,
@@ -1055,7 +1056,8 @@ const TEKST = {
     u: "u", uToku: "● U TOKU", pocinjeZa: "počinje za",
     americkiDatum: "(američki datum) · tačno vreme uskoro", sad: "(SAD)",
     kartice: ["Prosek poena", "Prosek asistencija", "Prosek skokova", "Prosek minuta",
-              "Utakmice", "Pobede-porazi", "Dabl-dabl", "Tripl-dabl"],
+              "Utakmice", "Pobede-porazi", "Dabl-dabl", "Tripl-dabl",
+              "Šut iz igre", "Šut za 2 poena", "Šut za 3 poena", "Slobodna bacanja"],
     sutIzIgre: "Šut iz igre", trojke: "Trojke", slobodna: "Slobodna bacanja", ukradene: "Ukradene lopte",
     blokade: "Blokade", izgubljene: "Izgubljene lopte", faulovi: "Faulovi",
     td: "TRIPL-DABL", dd: "DABL-DABL",
@@ -1093,7 +1095,8 @@ const TEKST = {
     u: "at", uToku: "● LIVE", pocinjeZa: "starts in",
     americkiDatum: "(US date) · tip-off time TBA", sad: "(US)",
     kartice: ["Points per game", "Assists per game", "Rebounds per game", "Minutes per game",
-              "Games", "Wins-losses", "Double-doubles", "Triple-doubles"],
+              "Games", "Wins-losses", "Double-doubles", "Triple-doubles",
+              "Field goal %", "2-point %", "3-point %", "Free throw %"],
     sutIzIgre: "Field goals", trojke: "Three-pointers", slobodna: "Free throws", ukradene: "Steals",
     blokade: "Blocks", izgubljene: "Turnovers", faulovi: "Fouls",
     td: "TRIPLE-DOUBLE", dd: "DOUBLE-DOUBLE",
@@ -1235,12 +1238,33 @@ function ishod(u) {
 const dvocifren = (x) => (x >= 10 ? ' class="dvocifren"' : "");
 
 function prikaziUtakmice() {
-  // Kartice: prvo Jokićev učinak (proseci po utakmici), zatim ukupno u sezoni
+  // Kartice: Jokićevi proseci po utakmici, procenti šuta i ukupno u sezoni
   const vrednosti = [jedna(s.prosek_poena), jedna(s.prosek_ast), jedna(s.prosek_sko), jedna(s.prosek_min),
                      s.utakmice, s.pobede + "-" + s.porazi, s.dabl_dabl, s.tripl_dabl];
-  document.getElementById("kartice").innerHTML = vrednosti.map((v, i) =>
-    `<div class="kartica"><div class="vrednost">${v}</div><div class="naziv">${T.kartice[i]}</div></div>`
-  ).join("");
+  // Procenti šuta za celu sezonu: zbir pogodaka / zbir pokušaja (samo utakmice sa unetim šutom)
+  const zbir = (pogodak, pokusaj) => utakmice.reduce((z, u) => {
+    const d = u.detalji;
+    const p = d && pogodak(d), k = d && pokusaj(d);
+    return p != null && k != null && !Number.isNaN(p) && !Number.isNaN(k) ? [z[0] + p, z[1] + k] : z;
+  }, [0, 0]);
+  const procenti = [
+    zbir((d) => d.fgm, (d) => d.fga),
+    zbir((d) => (d.fgm != null && d.tpm != null ? d.fgm - d.tpm : null),
+         (d) => (d.fga != null && d.tpa != null ? d.fga - d.tpa : null)),
+    zbir((d) => d.tpm, (d) => d.tpa),
+    zbir((d) => d.ftm, (d) => d.fta),
+  ].map(([p, k]) => ({ vrednost: k ? (100 * p / k).toFixed(1) + "%" : "–", pogodaka: k ? `${p}/${k}` : "" }));
+
+  const kartica = (v, i) =>
+    `<div class="kartica"><div class="vrednost">${v}</div><div class="naziv">${T.kartice[i]}</div></div>`;
+  // Redosled: 1. red proseci, 2. red procenti šuta, 3. red ukupno u sezoni
+  document.getElementById("kartice").innerHTML =
+    vrednosti.slice(0, 4).map((v, i) => kartica(v, i)).join("") +
+    procenti.map((x, i) =>
+      `<div class="kartica"><div class="vrednost">${x.vrednost}</div><div class="naziv">${T.kartice[8 + i]}</div>` +
+      (x.pogodaka ? `<div class="pogodaka">${x.pogodaka}</div>` : "") + "</div>"
+    ).join("") +
+    vrednosti.slice(4).map((v, i) => kartica(v, 4 + i)).join("");
 
   if (utakmice.length === 0) {
     document.getElementById("utakmice").innerHTML = `<div class="prazno">${T.prazno}</div>`;
