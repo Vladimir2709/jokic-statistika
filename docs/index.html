@@ -376,9 +376,27 @@
 <script>
 // Podatke ovde upisuje aplikacija (jokic_app.py) svaki put kad se doda ili obriše utakmica.
 const PODACI = {
- "azurirano": "26.11.2026. u 18:12",
- "azurirano_iso": "2026-11-26T18:12+01:00",
+ "azurirano": "26.11.2026. u 18:32",
+ "azurirano_iso": "2026-11-26T18:32+01:00",
  "statistika": {
+  "sut": {
+   "iz_igre": [
+    152,
+    287
+   ],
+   "za_dva": [
+    132,
+    220
+   ],
+   "trojke": [
+    20,
+    67
+   ],
+   "slobodna": [
+    70,
+    78
+   ]
+  },
   "pobede": 10,
   "porazi": 6,
   "utakmice": 16,
@@ -976,6 +994,494 @@ const PODACI = {
    "pocetak_utc": "2026-12-01T00:00:00Z",
    "protivnik": "Detroit Pistons",
    "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2026-12-02",
+   "pocetak_utc": "2026-12-03T00:00:00Z",
+   "protivnik": "Philadelphia 76ers",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2026-12-12",
+   "pocetak_utc": "2026-12-13T02:30:00Z",
+   "protivnik": "Utah Jazz",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2026-12-15",
+   "pocetak_utc": "2026-12-16T04:00:00Z",
+   "protivnik": "Portland Trail Blazers",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2026-12-17",
+   "pocetak_utc": "2026-12-18T02:00:00Z",
+   "protivnik": "Atlanta Hawks",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2026-12-19",
+   "pocetak_utc": "2026-12-20T02:00:00Z",
+   "protivnik": "Los Angeles Lakers",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2026-12-21",
+   "pocetak_utc": "2026-12-22T03:30:00Z",
+   "protivnik": "Los Angeles Clippers",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2026-12-23",
+   "pocetak_utc": "2026-12-24T03:00:00Z",
+   "protivnik": "Los Angeles Lakers",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2026-12-25",
+   "pocetak_utc": "2026-12-26T03:30:00Z",
+   "protivnik": "Golden State Warriors",
+   "mesto": "G",
+   "napomena": "Božić",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2026-12-27",
+   "pocetak_utc": "2026-12-28T01:00:00Z",
+   "protivnik": "Indiana Pacers",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2026-12-28",
+   "pocetak_utc": "2026-12-29T03:30:00Z",
+   "protivnik": "Minnesota Timberwolves",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2026-12-31",
+   "pocetak_utc": "2026-12-31T21:00:00Z",
+   "protivnik": "Minnesota Timberwolves",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-01-02",
+   "pocetak_utc": "2027-01-02T22:00:00Z",
+   "protivnik": "New York Knicks",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-01-03",
+   "pocetak_utc": "2027-01-03T22:00:00Z",
+   "protivnik": "Detroit Pistons",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-01-05",
+   "pocetak_utc": "2027-01-06T03:00:00Z",
+   "protivnik": "Phoenix Suns",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-01-07",
+   "pocetak_utc": "2027-01-08T00:00:00Z",
+   "protivnik": "Charlotte Hornets",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-01-09",
+   "pocetak_utc": "2027-01-09T22:00:00Z",
+   "protivnik": "Cleveland Cavaliers",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-01-11",
+   "pocetak_utc": "2027-01-12T00:00:00Z",
+   "protivnik": "New York Knicks",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-01-12",
+   "pocetak_utc": "2027-01-13T01:00:00Z",
+   "protivnik": "Milwaukee Bucks",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-01-14",
+   "pocetak_utc": "2027-01-15T02:00:00Z",
+   "protivnik": "Memphis Grizzlies",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-01-16",
+   "pocetak_utc": "2027-01-17T02:00:00Z",
+   "protivnik": "Charlotte Hornets",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-01-17",
+   "pocetak_utc": "2027-01-18T01:00:00Z",
+   "protivnik": "Orlando Magic",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-01-19",
+   "pocetak_utc": "2027-01-20T03:00:00Z",
+   "protivnik": "Utah Jazz",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-01-21",
+   "pocetak_utc": "2027-01-22T02:00:00Z",
+   "protivnik": "Washington Wizards",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-01-23",
+   "pocetak_utc": "2027-01-24T02:00:00Z",
+   "protivnik": "Milwaukee Bucks",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-01-25",
+   "pocetak_utc": "2027-01-26T02:30:00Z",
+   "protivnik": "Sacramento Kings",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-01-27",
+   "pocetak_utc": "2027-01-28T02:30:00Z",
+   "protivnik": "Minnesota Timberwolves",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-01-30",
+   "pocetak_utc": "2027-01-30T20:00:00Z",
+   "protivnik": "Oklahoma City Thunder",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-01-31",
+   "pocetak_utc": "2027-02-01T01:00:00Z",
+   "protivnik": "Portland Trail Blazers",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-02-02",
+   "pocetak_utc": "2027-02-03T02:00:00Z",
+   "protivnik": "Oklahoma City Thunder",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-02-04",
+   "pocetak_utc": "2027-02-05T03:00:00Z",
+   "protivnik": "Dallas Mavericks",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-02-05",
+   "pocetak_utc": "2027-02-06T02:00:00Z",
+   "protivnik": "Los Angeles Clippers",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-02-07",
+   "pocetak_utc": "2027-02-07T20:00:00Z",
+   "protivnik": "Atlanta Hawks",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-02-09",
+   "pocetak_utc": "2027-02-10T00:30:00Z",
+   "protivnik": "Boston Celtics",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-02-11",
+   "pocetak_utc": "2027-02-12T02:00:00Z",
+   "protivnik": "Chicago Bulls",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-02-12",
+   "pocetak_utc": "2027-02-13T03:30:00Z",
+   "protivnik": "Los Angeles Lakers",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-02-14",
+   "pocetak_utc": "2027-02-14T19:00:00Z",
+   "protivnik": "Houston Rockets",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-02-17",
+   "pocetak_utc": "2027-02-18T02:00:00Z",
+   "protivnik": "Utah Jazz",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-02-26",
+   "pocetak_utc": "2027-02-27T03:00:00Z",
+   "protivnik": "Los Angeles Lakers",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-02-28",
+   "pocetak_utc": "2027-02-28T18:00:00Z",
+   "protivnik": "San Antonio Spurs",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-03-01",
+   "pocetak_utc": "2027-03-02T02:00:00Z",
+   "protivnik": "Brooklyn Nets",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-03-03",
+   "pocetak_utc": "2027-03-04T03:00:00Z",
+   "protivnik": "San Antonio Spurs",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-03-07",
+   "pocetak_utc": "2027-03-07T20:30:00Z",
+   "protivnik": "Minnesota Timberwolves",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-03-08",
+   "pocetak_utc": "2027-03-09T03:00:00Z",
+   "protivnik": "Sacramento Kings",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-03-10",
+   "pocetak_utc": "2027-03-11T03:00:00Z",
+   "protivnik": "Portland Trail Blazers",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-03-12",
+   "pocetak_utc": "2027-03-13T03:00:00Z",
+   "protivnik": "Golden State Warriors",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-03-14",
+   "pocetak_utc": "2027-03-14T23:30:00Z",
+   "protivnik": "Miami Heat",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-03-16",
+   "pocetak_utc": "2027-03-17T03:00:00Z",
+   "protivnik": "Los Angeles Clippers",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-03-18",
+   "pocetak_utc": "2027-03-19T01:00:00Z",
+   "protivnik": "Cleveland Cavaliers",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-03-20",
+   "pocetak_utc": "2027-03-20T23:00:00Z",
+   "protivnik": "Orlando Magic",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-03-21",
+   "pocetak_utc": "2027-03-21T22:00:00Z",
+   "protivnik": "Miami Heat",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-03-24",
+   "pocetak_utc": "2027-03-24T23:00:00Z",
+   "protivnik": "Washington Wizards",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-03-25",
+   "pocetak_utc": "2027-03-25T23:30:00Z",
+   "protivnik": "Brooklyn Nets",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-03-28",
+   "pocetak_utc": "2027-03-29T02:00:00Z",
+   "protivnik": "Philadelphia 76ers",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-03-29",
+   "pocetak_utc": "2027-03-30T02:00:00Z",
+   "protivnik": "Sacramento Kings",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-03-31",
+   "pocetak_utc": "2027-04-01T01:30:00Z",
+   "protivnik": "Dallas Mavericks",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-04-02",
+   "pocetak_utc": "2027-04-03T02:00:00Z",
+   "protivnik": "Phoenix Suns",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-04-04",
+   "pocetak_utc": "2027-04-04T21:00:00Z",
+   "protivnik": "Memphis Grizzlies",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-04-06",
+   "pocetak_utc": "2027-04-07T01:00:00Z",
+   "protivnik": "New Orleans Pelicans",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-04-08",
+   "pocetak_utc": "2027-04-09T01:00:00Z",
+   "protivnik": "Los Angeles Clippers",
+   "mesto": "D",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-04-09",
+   "pocetak_utc": "2027-04-10T01:30:00Z",
+   "protivnik": "San Antonio Spurs",
+   "mesto": "G",
+   "napomena": "",
+   "odigrana": false
+  },
+  {
+   "datum_us": "2027-04-11",
+   "pocetak_utc": "2027-04-12T00:30:00Z",
+   "protivnik": "Oklahoma City Thunder",
+   "mesto": "D",
    "napomena": "",
    "odigrana": false
   }
