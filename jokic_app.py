@@ -251,6 +251,7 @@ def izracunaj_statistiku():
     pobede = sum(1 for u in utakmice if ishod(u) == "W")
     porazi = sum(1 for u in utakmice if ishod(u) == "L")
     return {
+        "sut": izracunaj_sut(utakmice),
         "pobede": pobede,
         "porazi": porazi,
         "utakmice": n,
@@ -265,9 +266,26 @@ def izracunaj_statistiku():
         "tripl_dabl": tripl_dabl,
     }
 
+def izracunaj_sut(utakmice):
+    """Sezonski šut: zbir pogodaka i zbir pokušaja (samo utakmice gde je šut unet).
+    u[10:16] = pogođeno/pokušano iz igre, za 3 poena i slobodna bacanja."""
+    def zbir(i_pog, i_pok):
+        parovi = [(u[i_pog], u[i_pok]) for u in utakmice
+                  if len(u) > i_pok and u[i_pog] is not None and u[i_pok] is not None]
+        return sum(p for p, _ in parovi), sum(k for _, k in parovi)
+    iz_igre = zbir(10, 11)
+    trojke = zbir(12, 13)
+    slobodna = zbir(14, 15)
+    # Šut za 2 poena = šut iz igre bez trojki (samo utakmice gde su uneta oba)
+    dvojke = [(u[10] - u[12], u[11] - u[13]) for u in utakmice
+              if len(u) > 13 and None not in (u[10], u[11], u[12], u[13])]
+    za_dva = (sum(p for p, _ in dvojke), sum(k for _, k in dvojke))
+    return {"iz_igre": iz_igre, "za_dva": za_dva, "trojke": trojke, "slobodna": slobodna}
+
 PRAZNA_STATISTIKA = {"utakmice": 0, "pobede": 0, "porazi": 0,
                      "prosek_poena": 0, "prosek_ast": 0, "prosek_sko": 0,
-                     "prosek_min": 0, "dabl_dabl": 0, "tripl_dabl": 0}
+                     "prosek_min": 0, "dabl_dabl": 0, "tripl_dabl": 0,
+                     "sut": {"iz_igre": (0, 0), "za_dva": (0, 0), "trojke": (0, 0), "slobodna": (0, 0)}}
 
 def osvezi_web_stranicu():
     """Pravi docs/index.html sa trenutnim podacima. Posle `git push` ta stranica
@@ -623,15 +641,42 @@ class JokicApp(tk.Tk):
             ("Tripl-dabl", s["tripl_dabl"], "🔥"),
         ]
 
+        # Drugi red: sezonski procenti šuta, sa ukupnim brojem pogodaka i pokušaja
+        sut = s.get("sut", PRAZNA_STATISTIKA["sut"])
+        def procenat(par):
+            pogodaka, pokusaja = par
+            if not pokusaja:
+                return "–", "nema unetog šuta"
+            return f"{100 * pogodaka / pokusaja:.1f}%", f"{pogodaka}/{pokusaja}"
+        kartice_suta = [
+            ("Šut iz igre", *procenat(sut["iz_igre"]), "📊"),
+            ("Šut za 2 poena", *procenat(sut["za_dva"]), "2️⃣"),
+            ("Šut za 3 poena", *procenat(sut["trojke"]), "3️⃣"),
+            ("Slobodna bacanja", *procenat(sut["slobodna"]), "1️⃣"),
+        ]
+
+        red1 = tk.Frame(self.stats_frame, bg=self.bg)
+        red1.pack(fill="x")
+        red2 = tk.Frame(self.stats_frame, bg=self.bg)
+        red2.pack(fill="x", pady=(8, 0))
+
         for naziv, vrednost, ikona in kartice:
-            k = tk.Frame(self.stats_frame, bg=self.panel, padx=10, pady=8,
-                         relief="groove", bd=1)
-            k.pack(side="left", expand=True, fill="both", padx=4)
-            tk.Label(k, text=ikona, font=("Helvetica", 16), bg=self.panel, fg=self.gold).pack()
-            tk.Label(k, text=str(vrednost), font=("Helvetica", 18, "bold"),
-                     bg=self.panel, fg=self.gold).pack()
-            tk.Label(k, text=naziv, font=("Helvetica", 9),
+            k = self._kartica(red1, ikona, vrednost, naziv)
+        for naziv, vrednost, pokusaji, ikona in kartice_suta:
+            k = self._kartica(red2, ikona, vrednost, naziv)
+            tk.Label(k, text=pokusaji, font=("Helvetica", 9),
                      bg=self.panel, fg=self.muted).pack()
+
+    def _kartica(self, red, ikona, vrednost, naziv):
+        """Jedna kartica: ikonica, velika vrednost i naziv ispod."""
+        k = tk.Frame(red, bg=self.panel, padx=10, pady=8, relief="groove", bd=1)
+        k.pack(side="left", expand=True, fill="both", padx=4)
+        tk.Label(k, text=ikona, font=("Helvetica", 16), bg=self.panel, fg=self.gold).pack()
+        tk.Label(k, text=str(vrednost), font=("Helvetica", 18, "bold"),
+                 bg=self.panel, fg=self.gold).pack()
+        tk.Label(k, text=naziv, font=("Helvetica", 9),
+                 bg=self.panel, fg=self.muted).pack()
+        return k
 
     
     # ── Akcije ────────────────────────────────────────────────────────────────
