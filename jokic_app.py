@@ -649,10 +649,11 @@ class JokicApp(tk.Tk):
                 return "–", "nema unetog šuta"
             return f"{100 * pogodaka / pokusaja:.1f}%", f"{pogodaka}/{pokusaja}"
         kartice_suta = [
-            ("Šut iz igre", *procenat(sut["iz_igre"]), "📊"),
-            ("Šut za 2 poena", *procenat(sut["za_dva"]), "2️⃣"),
-            ("Šut za 3 poena", *procenat(sut["trojke"]), "3️⃣"),
-            ("Slobodna bacanja", *procenat(sut["slobodna"]), "1️⃣"),
+            # Umesto ikonice: košarkaške skraćenice (FG, 2P, 3P, FT) — jasne i uvek se lepo prikažu
+            ("Šut iz igre", *procenat(sut["iz_igre"]), "FG"),
+            ("Šut za 2 poena", *procenat(sut["za_dva"]), "2P"),
+            ("Šut za 3 poena", *procenat(sut["trojke"]), "3P"),
+            ("Slobodna bacanja", *procenat(sut["slobodna"]), "FT"),
         ]
 
         red1 = tk.Frame(self.stats_frame, bg=self.bg)
@@ -663,15 +664,16 @@ class JokicApp(tk.Tk):
         for naziv, vrednost, ikona in kartice:
             k = self._kartica(red1, ikona, vrednost, naziv)
         for naziv, vrednost, pokusaji, ikona in kartice_suta:
-            k = self._kartica(red2, ikona, vrednost, naziv)
+            k = self._kartica(red2, ikona, vrednost, naziv, oznaka=True)
             tk.Label(k, text=pokusaji, font=("Helvetica", 9),
                      bg=self.panel, fg=self.muted).pack()
 
-    def _kartica(self, red, ikona, vrednost, naziv):
-        """Jedna kartica: ikonica, velika vrednost i naziv ispod."""
+    def _kartica(self, red, ikona, vrednost, naziv, oznaka=False):
+        """Jedna kartica: ikonica (ili tekstualna oznaka), velika vrednost i naziv ispod."""
         k = tk.Frame(red, bg=self.panel, padx=10, pady=8, relief="groove", bd=1)
         k.pack(side="left", expand=True, fill="both", padx=4)
-        tk.Label(k, text=ikona, font=("Helvetica", 16), bg=self.panel, fg=self.gold).pack()
+        font = ("Helvetica", 12, "bold") if oznaka else ("Helvetica", 16)
+        tk.Label(k, text=ikona, font=font, bg=self.panel, fg=self.gold).pack()
         tk.Label(k, text=str(vrednost), font=("Helvetica", 18, "bold"),
                  bg=self.panel, fg=self.gold).pack()
         tk.Label(k, text=naziv, font=("Helvetica", 9),
